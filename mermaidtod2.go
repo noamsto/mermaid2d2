@@ -16,8 +16,8 @@ import (
 // connections, with composite states becoming containers; class diagrams map
 // onto D2 class shapes, with relationships becoming connections whose arrowheads
 // encode the UML relation type. Diagram types with no D2 equivalent (gantt, pie,
-// journey, ...) return an error rather than being mangled. Mermaid features
-// without a D2 equivalent (notes) are dropped.
+// journey, ...) return an error rather than being mangled. Sequence notes become
+// D2 notes; state and class notes have no D2 equivalent and are dropped.
 func MermaidToD2(src string) (string, error) {
 	diagram, err := mermaid.Parse(src)
 	if err != nil {
@@ -332,6 +332,17 @@ func (e *seqEmitter) emit(b *strings.Builder, stmts []ast.SeqStmt, depth int) {
 				continue
 			}
 			fmt.Fprintf(b, "%s%s -> %s\n", indent, v.From, v.To)
+		case *ast.Note:
+			// A childless, edgeless leaf inside a sequence_diagram renders as a
+			// note; scoping it under the first participant places it over that
+			// actor's lifeline (D2 has no left/right/span note positioning, so
+			// Position and any extra participants are approximated).
+			e.counts["note"]++
+			key := fmt.Sprintf("note_%d", e.counts["note"])
+			if len(v.Participants) > 0 {
+				key = v.Participants[0] + "." + key
+			}
+			fmt.Fprintf(b, "%s%s: %s\n", indent, key, strings.TrimSpace(v.Text))
 		case *ast.Loop:
 			e.group(b, depth, "loop", v.Label, v.Statements)
 		case *ast.Opt:

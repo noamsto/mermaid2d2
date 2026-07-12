@@ -2,6 +2,7 @@ sequenceDiagram
     participant C as Client
     participant S as Server
     C->>S: GET /diagram
+    Note over S: cache miss
     loop retry on failure
         S->>S: render
     end
