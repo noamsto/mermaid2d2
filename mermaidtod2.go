@@ -109,6 +109,9 @@ func (e *flowEmitter) walk(stmts []ast.Statement, c *d2Container) {
 				label: strings.TrimSpace(v.Label),
 			})
 		case *ast.Subgraph:
+			// The parser drops the subgraph's real id (sammcj/mermaid-check#8),
+			// so the container id is slugged from the title; switch to the id
+			// once that field exists upstream.
 			slug := e.slug(v.Title)
 			path := slug
 			if c.path != "" {
