@@ -67,6 +67,58 @@ func TestMermaidToD2Flowchart(t *testing.T) {
 	}
 }
 
+func TestMermaidToD2NodeShapes(t *testing.T) {
+	tests := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "diamond",
+			in:   "flowchart TD\n    a{Is it ok?}\n    a --> b",
+			want: "a: Is it ok? {shape: diamond}\n" +
+				"a -> b\n",
+		},
+		{
+			name: "hexagon",
+			in:   "flowchart TD\n    a{{Prepare}}\n    a --> b",
+			want: "a: Prepare {shape: hexagon}\n" +
+				"a -> b\n",
+		},
+		{
+			name: "cylinder",
+			in:   "flowchart TD\n    db[(Store)]\n    db --> b",
+			want: "db: Store {shape: cylinder}\n" +
+				"db -> b\n",
+		},
+		{
+			name: "stadium becomes oval",
+			in:   "flowchart TD\n    s([Begin])\n    s --> b",
+			want: "s: Begin {shape: oval}\n" +
+				"s -> b\n",
+		},
+		{
+			name: "circle with label equal to id",
+			in:   "flowchart TD\n    x((x))\n    x --> b",
+			want: "x: {shape: circle}\n" +
+				"x -> b\n",
+		},
+		{
+			name: "rectangle and rounded fall back to default",
+			in:   "flowchart TD\n    a[Box] --> b(Round)",
+			want: "a: Box\n" +
+				"b: Round\n" +
+				"a -> b\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assertConvertsTo(t, tt.in, tt.want)
+		})
+	}
+}
+
 func TestMermaidToD2Sequence(t *testing.T) {
 	tests := []struct {
 		name string

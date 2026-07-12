@@ -49,6 +49,7 @@ func flowchartToD2(fc *ast.Flowchart) string {
 	e := &flowEmitter{
 		containerOf: map[string]string{},
 		labelOf:     map[string]string{},
+		shapeOf:     map[string]string{},
 		byPath:      map[string]*d2Container{},
 		usedSlugs:   map[string]bool{},
 	}
@@ -75,6 +76,7 @@ func flowchartToD2(fc *ast.Flowchart) string {
 type flowEmitter struct {
 	containerOf map[string]string // node id -> container path (first mention wins)
 	labelOf     map[string]string // node id -> label
+	shapeOf     map[string]string // node id -> D2 shape keyword (non-default shapes only)
 	nodeOrder   []string          // node ids in first-seen order
 	byPath      map[string]*d2Container
 	usedSlugs   map[string]bool
@@ -98,6 +100,9 @@ func (e *flowEmitter) walk(stmts []ast.Statement, c *d2Container) {
 			e.note(v.ID, c.path)
 			if v.Label != "" && v.Label != v.ID {
 				e.labelOf[v.ID] = v.Label
+			}
+			if shape := d2Shape(v.Shape); shape != "" {
+				e.shapeOf[v.ID] = shape
 			}
 		case *ast.Link:
 			e.note(v.From, c.path)
@@ -140,7 +145,14 @@ func (e *flowEmitter) emit(b *strings.Builder, c *d2Container, depth int) {
 		if e.containerOf[id] != c.path {
 			continue
 		}
-		if lbl, ok := e.labelOf[id]; ok {
+		lbl, hasLbl := e.labelOf[id]
+		shape, hasShape := e.shapeOf[id]
+		switch {
+		case hasLbl && hasShape:
+			fmt.Fprintf(b, "%s%s: %s {shape: %s}\n", indent, id, lbl, shape)
+		case hasShape:
+			fmt.Fprintf(b, "%s%s: {shape: %s}\n", indent, id, shape)
+		case hasLbl:
 			fmt.Fprintf(b, "%s%s: %s\n", indent, id, lbl)
 		}
 	}
@@ -219,6 +231,26 @@ func d2Arrow(arrow string, bidir bool) string {
 		return "->"
 	default:
 		return "--"
+	}
+}
+
+// d2Shape maps a Mermaid node's bracket pair onto a D2 shape keyword, returning
+// "" for shapes that have no distinct D2 equivalent and render as the default
+// rectangle (plain `[]`, rounded `()`, subroutine `[[]]`, asymmetric `>]`).
+func d2Shape(bracket string) string {
+	switch bracket {
+	case "{}":
+		return "diamond"
+	case "{{}}":
+		return "hexagon"
+	case "(())":
+		return "circle"
+	case "[()]":
+		return "cylinder"
+	case "([])":
+		return "oval"
+	default:
+		return ""
 	}
 }
 

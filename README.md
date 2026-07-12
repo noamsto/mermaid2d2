@@ -18,9 +18,11 @@ tables, class shapes, grids, styling) are dropped.
 Mermaid → D2 maps a Mermaid `flowchart` onto D2 shapes, connections, and
 containers (subgraphs become containers; a node's subgraph membership is
 preserved via qualified edge endpoints), and a `sequenceDiagram` onto a D2
-`sequence_diagram` (loop/alt/opt/par blocks become labeled groups). Node shapes,
-edge styling, notes, and class styling have no D2 equivalent and are dropped;
-diagram types other than flowchart and sequence return an error.
+`sequence_diagram` (loop/alt/opt/par blocks become labeled groups). Node shapes
+with a D2 equivalent are mapped (rhombus → `diamond`, hexagon, circle, cylinder,
+stadium → `oval`); shapes without one fall back to the default rectangle. Edge
+styling, notes, and class styling have no D2 equivalent and are dropped; diagram
+types other than flowchart and sequence return an error.
 
 ## CLI
 
