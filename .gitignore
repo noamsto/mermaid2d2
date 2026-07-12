@@ -1,0 +1,6 @@
+result
+result-*
+.direnv
+.claude/settings.local.json
+.pre-commit-config.yaml
+/m2d2
