@@ -1,0 +1,8 @@
+flowchart LR
+    Start[Start] --> Parse{Valid?}
+    Parse -->|yes| Build[Build graph]
+    Parse -->|no| Fail[Report error]
+    subgraph pipeline[Conversion pipeline]
+        Build --> Emit[Emit D2]
+    end
+    Emit --> Done[Done]
