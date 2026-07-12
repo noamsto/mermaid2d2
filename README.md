@@ -24,8 +24,10 @@ stadium → `oval`); shapes without one fall back to the default rectangle. Dott
 (`-.->`) and thick (`==>`) links carry their line style onto the D2 connection.
 A `stateDiagram-v2` maps onto D2 nodes and connections (composite states become
 containers, `[*]` start/end become sentinel circle nodes, choices become
-diamonds). Notes and class styling have no D2 equivalent and are dropped;
-diagram types other than flowchart, sequence, and state return an error.
+diamonds). A `classDiagram` maps onto D2 `class` shapes, with relationships
+becoming connections whose arrowheads encode the UML relation type (inheritance,
+composition, aggregation, …). Notes have no D2 equivalent and are dropped;
+diagram types other than flowchart, sequence, state, and class return an error.
 
 ## CLI
 

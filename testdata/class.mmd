@@ -1,0 +1,7 @@
+classDiagram
+    class Order {
+        +String id
+        +submit(String coupon) bool
+    }
+    Order *-- LineItem
+    Order --> Customer : placed by
