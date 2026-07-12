@@ -15,9 +15,11 @@ import (
 // opt blocks becoming labeled groups; state diagrams map onto nodes and
 // connections, with composite states becoming containers; class diagrams map
 // onto D2 class shapes, with relationships becoming connections whose arrowheads
-// encode the UML relation type. Diagram types with no D2 equivalent (gantt, pie,
-// journey, ...) return an error rather than being mangled. Sequence notes become
-// D2 notes; state and class notes have no D2 equivalent and are dropped.
+// encode the UML relation type; ER diagrams map onto D2 sql_table shapes, with
+// attributes as typed columns and relationships as connections. Diagram types
+// with no D2 equivalent (gantt, pie, journey, ...) return an error rather than
+// being mangled. Sequence notes become D2 notes; state and class notes have no
+// D2 equivalent and are dropped.
 func MermaidToD2(src string) (string, error) {
 	diagram, err := mermaid.Parse(src)
 	if err != nil {
@@ -32,8 +34,10 @@ func MermaidToD2(src string) (string, error) {
 		return stateDiagramToD2(d), nil
 	case *ast.ClassDiagram:
 		return classDiagramToD2(d), nil
+	case *ast.ERDiagram:
+		return erDiagramToD2(d), nil
 	default:
-		return "", fmt.Errorf("mermaid2d2: unsupported diagram type %q: only flowchart, sequence, state, and class are supported", diagram.GetType())
+		return "", fmt.Errorf("mermaid2d2: unsupported diagram type %q: only flowchart, sequence, state, class, and er are supported", diagram.GetType())
 	}
 }
 

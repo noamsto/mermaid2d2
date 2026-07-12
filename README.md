@@ -27,9 +27,11 @@ A `stateDiagram-v2` maps onto D2 nodes and connections (composite states become
 containers, `[*]` start/end become sentinel circle nodes, choices become
 diamonds). A `classDiagram` maps onto D2 `class` shapes, with relationships
 becoming connections whose arrowheads encode the UML relation type (inheritance,
-composition, aggregation, …). State and class notes have no D2 equivalent and
-are dropped; diagram types other than flowchart, sequence, state, and class
-return an error.
+composition, aggregation, …). An `erDiagram` maps onto D2 `sql_table` shapes
+(attributes become typed columns; PK/FK/UK keys become column constraints;
+relationship cardinalities become arrowhead labels). State and class notes have
+no D2 equivalent and are dropped; diagram types other than flowchart, sequence,
+state, class, and er return an error.
 
 ## CLI
 
