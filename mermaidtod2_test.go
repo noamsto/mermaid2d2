@@ -45,15 +45,15 @@ func TestMermaidToD2Flowchart(t *testing.T) {
 		{
 			name: "subgraph becomes container",
 			in:   "flowchart TB\n    subgraph one[Group One]\n        a1 --> a2\n    end\n    a2 --> b",
-			want: "Group_One: Group One {\n" +
+			want: "one: Group One {\n" +
 				"  a1 -> a2\n" +
 				"}\n" +
-				"Group_One.a2 -> b\n",
+				"one.a2 -> b\n",
 		},
 		{
 			name: "labeled node inside subgraph",
 			in:   "flowchart TD\n    subgraph grp[My Group]\n        x[Node X] --> y\n    end",
-			want: "My_Group: My Group {\n" +
+			want: "grp: My Group {\n" +
 				"  x: Node X\n" +
 				"  x -> y\n" +
 				"}\n",
