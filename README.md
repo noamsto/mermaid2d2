@@ -18,7 +18,8 @@ tables, class shapes, grids, styling) are dropped.
 Mermaid → D2 maps a Mermaid `flowchart` onto D2 shapes, connections, and
 containers (subgraphs become containers; a node's subgraph membership is
 preserved via qualified edge endpoints), and a `sequenceDiagram` onto a D2
-`sequence_diagram` (loop/alt/opt/par blocks become labeled groups). Node shapes
+`sequence_diagram` (loop/alt/opt/par blocks become labeled groups; `Note`s
+become D2 notes scoped to their first participant). Node shapes
 with a D2 equivalent are mapped (rhombus → `diamond`, hexagon, circle, cylinder,
 stadium → `oval`); shapes without one fall back to the default rectangle. Dotted
 (`-.->`) and thick (`==>`) links carry their line style onto the D2 connection.
@@ -26,8 +27,9 @@ A `stateDiagram-v2` maps onto D2 nodes and connections (composite states become
 containers, `[*]` start/end become sentinel circle nodes, choices become
 diamonds). A `classDiagram` maps onto D2 `class` shapes, with relationships
 becoming connections whose arrowheads encode the UML relation type (inheritance,
-composition, aggregation, …). Notes have no D2 equivalent and are dropped;
-diagram types other than flowchart, sequence, state, and class return an error.
+composition, aggregation, …). State and class notes have no D2 equivalent and
+are dropped; diagram types other than flowchart, sequence, state, and class
+return an error.
 
 ## CLI
 

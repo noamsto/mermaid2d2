@@ -196,6 +196,16 @@ func TestMermaidToD2Sequence(t *testing.T) {
 				"  B -> A: 500\n" +
 				"}\n",
 		},
+		{
+			name: "note over a participant becomes a scoped note",
+			in:   "sequenceDiagram\n    participant A as Alice\n    participant B as Bob\n    A->>B: hi\n    Note over A: thinking\n    B->>A: hello",
+			want: "shape: sequence_diagram\n" +
+				"A: Alice\n" +
+				"B: Bob\n" +
+				"A -> B: hi\n" +
+				"A.note_1: thinking\n" +
+				"B -> A: hello\n",
+		},
 	}
 
 	for _, tt := range tests {
