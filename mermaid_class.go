@@ -1,0 +1,132 @@
+package mermaid2d2
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/sammcj/mermaid-check/ast"
+)
+
+// classDiagramToD2 renders a Mermaid class diagram as a D2 script. Classes become
+// `shape: class` nodes; relationships become connections whose arrowheads encode
+// the UML relation type. Notes and comments are dropped.
+func classDiagramToD2(d *ast.ClassDiagram) string {
+	var b strings.Builder
+	for _, s := range d.Statements {
+		switch v := s.(type) {
+		case *ast.Class:
+			classNode(&b, v)
+		case *ast.Relationship:
+			classRelationship(&b, v)
+		}
+	}
+	return b.String()
+}
+
+func classNode(b *strings.Builder, c *ast.Class) {
+	if len(c.Members) == 0 {
+		fmt.Fprintf(b, "%s: {shape: class}\n", c.Name)
+		return
+	}
+	fmt.Fprintf(b, "%s: {\n", c.Name)
+	b.WriteString("  shape: class\n")
+	for i := range c.Members {
+		fmt.Fprintf(b, "  %s\n", classMember(&c.Members[i]))
+	}
+	b.WriteString("}\n")
+}
+
+// classMember renders one field or method. The parser fills Name and Type from the
+// first two tokens as written, so they are passed through positionally.
+func classMember(m *ast.ClassMember) string {
+	vis := classVisibility(m.Visibility)
+	if m.IsMethod {
+		sig := fmt.Sprintf("%s%s(%s)", vis, m.Name, strings.Join(m.Parameters, ", "))
+		if m.Type == "" {
+			return sig
+		}
+		return fmt.Sprintf("%s: %s", sig, m.Type)
+	}
+	if m.Type == "" {
+		return vis + m.Name
+	}
+	return fmt.Sprintf("%s%s: %s", vis, m.Name, m.Type)
+}
+
+// classVisibility escapes protected (#) so D2 does not read it as a comment. D2 has
+// no package marker, so ~ is left in the name verbatim.
+func classVisibility(v string) string {
+	if v == "#" {
+		return `\#`
+	}
+	return v
+}
+
+func classRelationship(b *strings.Builder, r *ast.Relationship) {
+	fmt.Fprintf(b, "%s -> %s", r.From, r.To)
+	attrs := classRelAttrs(r)
+	switch {
+	case r.Label != "" && attrs != "":
+		fmt.Fprintf(b, ": %s {%s}", r.Label, attrs)
+	case r.Label != "":
+		fmt.Fprintf(b, ": %s", r.Label)
+	case attrs != "":
+		fmt.Fprintf(b, ": {%s}", attrs)
+	}
+	b.WriteByte('\n')
+}
+
+// classRelAttrs builds the connection attribute block mapping the UML relation type
+// to D2 arrowhead shapes, plus any end cardinalities as arrowhead labels.
+func classRelAttrs(r *ast.Relationship) string {
+	var srcShape, tgtShape string
+	var srcHollow, tgtHollow, dashed bool
+	switch r.Type {
+	case "inheritance":
+		tgtShape, tgtHollow = "triangle", true
+	case "realization":
+		tgtShape, tgtHollow, dashed = "triangle", true, true
+	case "composition":
+		srcShape = "diamond"
+	case "aggregation":
+		srcShape, srcHollow = "diamond", true
+	case "dependency":
+		dashed = true
+	}
+
+	var attrs []string
+	if a := arrowheadAttr("source", srcShape, srcHollow, endLabel(r.FromCardinality, r.FromMultiplicity)); a != "" {
+		attrs = append(attrs, a)
+	}
+	if a := arrowheadAttr("target", tgtShape, tgtHollow, endLabel(r.ToCardinality, r.ToMultiplicity)); a != "" {
+		attrs = append(attrs, a)
+	}
+	if dashed {
+		attrs = append(attrs, "style.stroke-dash: 3")
+	}
+	return strings.Join(attrs, "; ")
+}
+
+func arrowheadAttr(end, shape string, hollow bool, label string) string {
+	var parts []string
+	if shape != "" {
+		parts = append(parts, "shape: "+shape)
+	}
+	if hollow {
+		parts = append(parts, "style.filled: false")
+	}
+	if label != "" {
+		parts = append(parts, "label: "+label)
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%s-arrowhead: {%s}", end, strings.Join(parts, "; "))
+}
+
+func endLabel(cardinality, multiplicity string) string {
+	if cardinality != "" {
+		return cardinality
+	}
+	return multiplicity
+}
