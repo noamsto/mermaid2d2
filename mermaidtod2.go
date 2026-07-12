@@ -43,6 +43,7 @@ type d2Edge struct {
 	from, to string // Mermaid (global) node ids
 	arrow    string // resolved D2 arrow
 	label    string
+	style    string // D2 connection style attribute, or "" for a plain edge
 }
 
 func flowchartToD2(fc *ast.Flowchart) string {
@@ -112,6 +113,7 @@ func (e *flowEmitter) walk(stmts []ast.Statement, c *d2Container) {
 				to:    v.To,
 				arrow: d2Arrow(v.Arrow, v.BiDir),
 				label: strings.TrimSpace(v.Label),
+				style: d2EdgeStyle(v.Arrow),
 			})
 		case *ast.Subgraph:
 			// The subgraph id is the D2 container id. The quoted-title form has
@@ -173,11 +175,14 @@ func (e *flowEmitter) emit(b *strings.Builder, c *d2Container, depth int) {
 
 	for _, ed := range c.edges {
 		from, to := e.rel(ed.from, c.path), e.rel(ed.to, c.path)
+		line := fmt.Sprintf("%s%s %s %s", indent, from, ed.arrow, to)
 		if ed.label != "" {
-			fmt.Fprintf(b, "%s%s %s %s: %s\n", indent, from, ed.arrow, to, ed.label)
-			continue
+			line += ": " + ed.label
 		}
-		fmt.Fprintf(b, "%s%s %s %s\n", indent, from, ed.arrow, to)
+		if ed.style != "" {
+			line += " {" + ed.style + "}"
+		}
+		fmt.Fprintln(b, line)
 	}
 }
 
@@ -220,9 +225,8 @@ func commonContainer(a, b string) string {
 	return strings.Join(common, ".")
 }
 
-// d2Arrow maps a Mermaid link arrow onto a D2 connection. Line styling
-// (dotted, thick) has no plain-connection equivalent and is dropped; only
-// direction is preserved.
+// d2Arrow maps a Mermaid link arrow onto a D2 connection direction; line style
+// (dotted, thick) is handled separately by d2EdgeStyle.
 func d2Arrow(arrow string, bidir bool) string {
 	switch {
 	case bidir:
@@ -231,6 +235,20 @@ func d2Arrow(arrow string, bidir bool) string {
 		return "->"
 	default:
 		return "--"
+	}
+}
+
+// d2EdgeStyle maps a Mermaid link's line style onto a D2 connection style
+// attribute: dotted (-.->) becomes a dashed stroke, thick (==>) a wide stroke.
+// A solid link returns "" (the D2 default).
+func d2EdgeStyle(arrow string) string {
+	switch {
+	case strings.Contains(arrow, "."):
+		return "style.stroke-dash: 3"
+	case strings.Contains(arrow, "="):
+		return "style.stroke-width: 3"
+	default:
+		return ""
 	}
 }
 

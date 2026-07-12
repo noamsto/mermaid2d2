@@ -36,11 +36,11 @@ func TestMermaidToD2Flowchart(t *testing.T) {
 				"a <-> c\n",
 		},
 		{
-			name: "dotted and thick arrows keep direction",
+			name: "dotted and thick arrows carry style",
 			in:   "graph LR\n    a -.-> b\n    b ==> c",
 			want: "direction: right\n" +
-				"a -> b\n" +
-				"b -> c\n",
+				"a -> b {style.stroke-dash: 3}\n" +
+				"b -> c {style.stroke-width: 3}\n",
 		},
 		{
 			name: "subgraph becomes container",
@@ -109,6 +109,41 @@ func TestMermaidToD2NodeShapes(t *testing.T) {
 			want: "a: Box\n" +
 				"b: Round\n" +
 				"a -> b\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assertConvertsTo(t, tt.in, tt.want)
+		})
+	}
+}
+
+func TestMermaidToD2EdgeStyling(t *testing.T) {
+	tests := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "dotted edge",
+			in:   "flowchart TD\n    a -.-> b",
+			want: "a -> b {style.stroke-dash: 3}\n",
+		},
+		{
+			name: "thick edge",
+			in:   "flowchart TD\n    a ==> b",
+			want: "a -> b {style.stroke-width: 3}\n",
+		},
+		{
+			name: "dotted edge with label",
+			in:   "flowchart TD\n    a -.->|retry| b",
+			want: "a -> b: retry {style.stroke-dash: 3}\n",
+		},
+		{
+			name: "solid edge unchanged",
+			in:   "flowchart TD\n    a --> b",
+			want: "a -> b\n",
 		},
 	}
 
