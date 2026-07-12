@@ -8,12 +8,19 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 | Direction | Status |
 |---|---|
 | **D2 → Mermaid** | Implemented — graph/flowchart diagrams (nodes, containers, edges, direction) |
-| **Mermaid → D2** | Not yet implemented (`ErrNotImplemented`) |
+| **Mermaid → D2** | Implemented — flowchart (nodes, subgraphs, edges, direction) and sequence (participants, messages, loop/alt/opt groups) |
 
 D2 → Mermaid maps D2's node/container/edge graph onto a Mermaid `flowchart`:
 containers become `subgraph`s, connections become edges, and the board
 direction sets the orientation. D2 features with no flowchart equivalent (SQL
 tables, class shapes, grids, styling) are dropped.
+
+Mermaid → D2 maps a Mermaid `flowchart` onto D2 shapes, connections, and
+containers (subgraphs become containers; a node's subgraph membership is
+preserved via qualified edge endpoints), and a `sequenceDiagram` onto a D2
+`sequence_diagram` (loop/alt/opt/par blocks become labeled groups). Node shapes,
+edge styling, notes, and class styling have no D2 equivalent and are dropped;
+diagram types other than flowchart and sequence return an error.
 
 ## CLI
 
@@ -34,6 +41,7 @@ The target format is inferred from the input extension (`.d2` → mermaid,
 import "github.com/noamsto/mermaid2d2"
 
 out, err := mermaid2d2.D2ToMermaid(src)
+d2, err := mermaid2d2.MermaidToD2(src)
 ```
 
 ## Development

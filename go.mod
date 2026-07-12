@@ -1,8 +1,11 @@
 module github.com/noamsto/mermaid2d2
 
-go 1.25.0
+go 1.26.2
 
-require oss.terrastruct.com/d2 v0.7.1
+require (
+	github.com/sammcj/mermaid-check v0.0.4
+	oss.terrastruct.com/d2 v0.7.1
+)
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.0 // indirect

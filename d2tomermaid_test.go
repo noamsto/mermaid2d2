@@ -80,9 +80,3 @@ func TestD2ToMermaid(t *testing.T) {
 		})
 	}
 }
-
-func TestMermaidToD2NotImplemented(t *testing.T) {
-	if _, err := MermaidToD2("flowchart TD\n a --> b"); err != ErrNotImplemented {
-		t.Fatalf("MermaidToD2 error = %v, want ErrNotImplemented", err)
-	}
-}

@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+    C->>S: GET /diagram
+    loop retry on failure
+        S->>S: render
+    end
+    alt success
+        S-->>C: 200 OK
+    else error
+        S-->>C: 500 Internal
+    end
