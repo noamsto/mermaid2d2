@@ -12,9 +12,10 @@ import (
 //
 // Flowchart nodes, edges, and subgraphs map onto D2 shapes, connections, and
 // containers; sequence diagrams map onto a D2 sequence_diagram, with loop/alt/
-// opt blocks becoming labeled groups. Diagram types with no D2 equivalent
-// (gantt, pie, journey, ...) return an error rather than being mangled. Mermaid
-// features without a D2 equivalent (node shapes, edge styling, notes) are
+// opt blocks becoming labeled groups; state diagrams map onto nodes and
+// connections, with composite states becoming containers. Diagram types with no
+// D2 equivalent (gantt, pie, journey, ...) return an error rather than being
+// mangled. Mermaid features without a D2 equivalent (notes, class styling) are
 // dropped.
 func MermaidToD2(src string) (string, error) {
 	diagram, err := mermaid.Parse(src)
@@ -26,8 +27,10 @@ func MermaidToD2(src string) (string, error) {
 		return flowchartToD2(d), nil
 	case *ast.SequenceDiagram:
 		return sequenceToD2(d), nil
+	case *ast.StateDiagram:
+		return stateDiagramToD2(d), nil
 	default:
-		return "", fmt.Errorf("mermaid2d2: unsupported diagram type %q: only flowchart and sequence are supported", diagram.GetType())
+		return "", fmt.Errorf("mermaid2d2: unsupported diagram type %q: only flowchart, sequence, and state are supported", diagram.GetType())
 	}
 }
 

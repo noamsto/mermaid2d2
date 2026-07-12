@@ -22,8 +22,10 @@ preserved via qualified edge endpoints), and a `sequenceDiagram` onto a D2
 with a D2 equivalent are mapped (rhombus → `diamond`, hexagon, circle, cylinder,
 stadium → `oval`); shapes without one fall back to the default rectangle. Dotted
 (`-.->`) and thick (`==>`) links carry their line style onto the D2 connection.
-Notes and class styling have no D2 equivalent and are dropped; diagram types
-other than flowchart and sequence return an error.
+A `stateDiagram-v2` maps onto D2 nodes and connections (composite states become
+containers, `[*]` start/end become sentinel circle nodes, choices become
+diamonds). Notes and class styling have no D2 equivalent and are dropped;
+diagram types other than flowchart, sequence, and state return an error.
 
 ## CLI
 
