@@ -20,9 +20,10 @@ containers (subgraphs become containers; a node's subgraph membership is
 preserved via qualified edge endpoints), and a `sequenceDiagram` onto a D2
 `sequence_diagram` (loop/alt/opt/par blocks become labeled groups). Node shapes
 with a D2 equivalent are mapped (rhombus → `diamond`, hexagon, circle, cylinder,
-stadium → `oval`); shapes without one fall back to the default rectangle. Edge
-styling, notes, and class styling have no D2 equivalent and are dropped; diagram
-types other than flowchart and sequence return an error.
+stadium → `oval`); shapes without one fall back to the default rectangle. Dotted
+(`-.->`) and thick (`==>`) links carry their line style onto the D2 connection.
+Notes and class styling have no D2 equivalent and are dropped; diagram types
+other than flowchart and sequence return an error.
 
 ## CLI
 
