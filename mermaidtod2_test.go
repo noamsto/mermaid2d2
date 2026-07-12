@@ -1,6 +1,8 @@
 package mermaid2d2
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -129,6 +131,33 @@ func assertConvertsTo(t *testing.T, in, want string) {
 	}
 	if _, _, err := d2compiler.Compile("", strings.NewReader(got), nil); err != nil {
 		t.Errorf("MermaidToD2(%q) produced invalid D2: %v\n%s", in, err, got)
+	}
+}
+
+// TestMermaidToD2Testdata converts every Mermaid fixture and checks the output
+// compiles as D2, exercising richer real-world inputs than the unit tables.
+func TestMermaidToD2Testdata(t *testing.T) {
+	files, err := filepath.Glob("testdata/*.mmd")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(files) == 0 {
+		t.Fatal("no testdata/*.mmd fixtures found")
+	}
+	for _, f := range files {
+		t.Run(filepath.Base(f), func(t *testing.T) {
+			src, err := os.ReadFile(f)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := MermaidToD2(string(src))
+			if err != nil {
+				t.Fatalf("MermaidToD2(%s) error: %v", f, err)
+			}
+			if _, _, err := d2compiler.Compile("", strings.NewReader(got), nil); err != nil {
+				t.Errorf("MermaidToD2(%s) produced invalid D2: %v\n%s", f, err, got)
+			}
+		})
 	}
 }
 
