@@ -54,6 +54,8 @@
           deadnix.enable = true;
           alejandra.enable = true;
           typos.enable = true;
+          # Generated SVGs (mermaid/d2 renders) aren't prose to spell-check.
+          typos.excludes = ["\\.svg$"];
           check-merge-conflicts.enable = true;
           trim-trailing-whitespace.enable = true;
           gofmt.enable = true;

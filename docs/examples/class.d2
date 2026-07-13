@@ -1,0 +1,8 @@
+Order: {
+  shape: class
+  +id: String
+  +submit(String coupon): bool
+}
+Entity -> Order: {target-arrowhead: {shape: triangle; style.filled: false}}
+Order -> LineItem: {source-arrowhead: {shape: diamond}}
+Order -> Customer: placed by
