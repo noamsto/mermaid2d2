@@ -3,37 +3,30 @@
 Convert between [D2](https://d2lang.com) and [Mermaid](https://mermaid.js.org)
 diagram syntax, as a Go library and a CLI (`m2d2`).
 
-## Status
+## Coverage
 
-| Direction | Status |
-|---|---|
-| **D2 → Mermaid** | Implemented — graph/flowchart diagrams (nodes, containers, edges, direction) |
-| **Mermaid → D2** | Implemented — flowchart, sequenceDiagram, stateDiagram-v2, classDiagram, erDiagram, and mindmap |
+### Mermaid → D2
 
-D2 → Mermaid maps D2's node/container/edge graph onto a Mermaid `flowchart`:
-containers become `subgraph`s, connections become edges, and the board
-direction sets the orientation. D2 features with no flowchart equivalent (SQL
-tables, class shapes, grids, styling) are dropped.
+| Mermaid | D2 target | Mapped features |
+|---|---|---|
+| `flowchart` / `graph` | shapes, connections, containers | subgraphs → containers (membership preserved via qualified edge endpoints); node shapes (rhombus → `diamond`, hexagon, circle, cylinder, stadium → `oval`); dotted (`-.->`) / thick (`==>`) edges → stroke style; direction |
+| `sequenceDiagram` | `sequence_diagram` | participants + aliases; messages; `loop`/`alt`/`opt`/`par`/`critical` → labeled groups; `Note` → D2 note |
+| `stateDiagram-v2` | nodes + connections | composite states → containers; `[*]` → sentinel start/end circles; transitions → connections; choice → `diamond` |
+| `classDiagram` | `class` shapes | typed members with visibility; relationships → connections with UML arrowheads (inheritance, composition, aggregation, …) |
+| `erDiagram` | `sql_table` shapes | typed columns; PK/FK/UK → column constraints; crow's-foot cardinalities → arrowhead labels |
+| `mindmap` | node tree | nodes connected to their parent; mapped node shapes |
+| pie, gantt, journey, C4, … | — | unsupported → error |
 
-Mermaid → D2 maps a Mermaid `flowchart` onto D2 shapes, connections, and
-containers (subgraphs become containers; a node's subgraph membership is
-preserved via qualified edge endpoints), and a `sequenceDiagram` onto a D2
-`sequence_diagram` (loop/alt/opt/par blocks become labeled groups; `Note`s
-become D2 notes scoped to their first participant). Node shapes
-with a D2 equivalent are mapped (rhombus → `diamond`, hexagon, circle, cylinder,
-stadium → `oval`); shapes without one fall back to the default rectangle. Dotted
-(`-.->`) and thick (`==>`) links carry their line style onto the D2 connection.
-A `stateDiagram-v2` maps onto D2 nodes and connections (composite states become
-containers, `[*]` start/end become sentinel circle nodes, choices become
-diamonds). A `classDiagram` maps onto D2 `class` shapes, with relationships
-becoming connections whose arrowheads encode the UML relation type (inheritance,
-composition, aggregation, …). An `erDiagram` maps onto D2 `sql_table` shapes
-(attributes become typed columns; PK/FK/UK keys become column constraints;
-relationship cardinalities become arrowhead labels). A `mindmap` maps onto a D2
-tree — each node becomes a shape connected to its parent (shapes with a D2
-equivalent are mapped; icons are dropped). State and class notes have no D2
-equivalent and are dropped; diagram types other than flowchart, sequence, state,
-class, er, and mindmap return an error.
+### D2 → Mermaid
+
+| D2 | Mermaid target | Mapped features |
+|---|---|---|
+| nodes, containers, connections, direction | `flowchart` | containers → `subgraph`s; connections → edges; board direction → orientation |
+| sql_table, class shapes, grids, styling | — | dropped (no `flowchart` equivalent) |
+
+**Limitations.** Labels containing D2 syntax characters are quoted automatically.
+State/class notes, sequence note side (left/right) and multi-participant spans,
+and mindmap icons are dropped.
 
 ## CLI
 
