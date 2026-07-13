@@ -215,6 +215,44 @@ func TestMermaidToD2Sequence(t *testing.T) {
 	}
 }
 
+func TestMermaidToD2LabelQuoting(t *testing.T) {
+	tests := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "node label with semicolon is quoted",
+			in:   "flowchart TD\n    a[Do X; then Y] --> b",
+			want: "a: \"Do X; then Y\"\n" +
+				"a -> b\n",
+		},
+		{
+			name: "edge label with hash is quoted",
+			in:   "flowchart TD\n    a -->|step #1| b",
+			want: "a -> b: \"step #1\"\n",
+		},
+		{
+			name: "message text with semicolon is quoted",
+			in:   "sequenceDiagram\n    A->>B: hi; bye",
+			want: "shape: sequence_diagram\n" +
+				"A -> B: \"hi; bye\"\n",
+		},
+		{
+			name: "safe label stays unquoted",
+			in:   "flowchart TD\n    a[Plain Label] --> b",
+			want: "a: Plain Label\n" +
+				"a -> b\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assertConvertsTo(t, tt.in, tt.want)
+		})
+	}
+}
+
 // assertConvertsTo checks that MermaidToD2(in) equals want and that the output
 // is valid D2 (it compiles).
 func assertConvertsTo(t *testing.T, in, want string) {

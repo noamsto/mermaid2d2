@@ -161,11 +161,11 @@ func (e *flowEmitter) emit(b *strings.Builder, c *d2Container, depth int) {
 		shape, hasShape := e.shapeOf[id]
 		switch {
 		case hasLbl && hasShape:
-			fmt.Fprintf(b, "%s%s: %s {shape: %s}\n", indent, id, lbl, shape)
+			fmt.Fprintf(b, "%s%s: %s {shape: %s}\n", indent, id, d2Label(lbl), shape)
 		case hasShape:
 			fmt.Fprintf(b, "%s%s: {shape: %s}\n", indent, id, shape)
 		case hasLbl:
-			fmt.Fprintf(b, "%s%s: %s\n", indent, id, lbl)
+			fmt.Fprintf(b, "%s%s: %s\n", indent, id, d2Label(lbl))
 		}
 	}
 
@@ -175,7 +175,7 @@ func (e *flowEmitter) emit(b *strings.Builder, c *d2Container, depth int) {
 			tail = child.path
 		}
 		if child.label != "" {
-			fmt.Fprintf(b, "%s%s: %s {\n", indent, tail, child.label)
+			fmt.Fprintf(b, "%s%s: %s {\n", indent, tail, d2Label(child.label))
 		} else {
 			fmt.Fprintf(b, "%s%s: {\n", indent, tail)
 		}
@@ -187,7 +187,7 @@ func (e *flowEmitter) emit(b *strings.Builder, c *d2Container, depth int) {
 		from, to := e.rel(ed.from, c.path), e.rel(ed.to, c.path)
 		line := fmt.Sprintf("%s%s %s %s", indent, from, ed.arrow, to)
 		if ed.label != "" {
-			line += ": " + ed.label
+			line += ": " + d2Label(ed.label)
 		}
 		if ed.style != "" {
 			line += " {" + ed.style + "}"
@@ -282,6 +282,19 @@ func d2Shape(bracket string) string {
 	}
 }
 
+// d2Label quotes a label that would otherwise misparse as D2 — one containing a
+// D2 syntax character (;{}#|"<>) or a newline, or with leading/trailing space.
+// Safe labels are returned unchanged so the common case stays unquoted. Inside a
+// D2 double-quoted string, backslash and double-quote are the escape sequences.
+func d2Label(s string) string {
+	if s == "" || (s == strings.TrimSpace(s) && !strings.ContainsAny(s, ";{}#|\"<>\n")) {
+		return s
+	}
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `"`, `\"`)
+	return `"` + s + `"`
+}
+
 // d2Direction maps a Mermaid flowchart orientation onto a D2 direction,
 // returning "" for the D2 default (down).
 func d2Direction(dir string) string {
@@ -311,7 +324,7 @@ func sequenceToD2(sd *ast.SequenceDiagram) string {
 		}
 		declared[p.ID] = true
 		if p.Alias != "" && p.Alias != p.ID {
-			fmt.Fprintf(&b, "%s: %s\n", p.ID, p.Alias)
+			fmt.Fprintf(&b, "%s: %s\n", p.ID, d2Label(p.Alias))
 			continue
 		}
 		fmt.Fprintf(&b, "%s\n", p.ID)
@@ -332,7 +345,7 @@ func (e *seqEmitter) emit(b *strings.Builder, stmts []ast.SeqStmt, depth int) {
 		switch v := s.(type) {
 		case *ast.Message:
 			if txt := strings.TrimSpace(v.Text); txt != "" {
-				fmt.Fprintf(b, "%s%s -> %s: %s\n", indent, v.From, v.To, txt)
+				fmt.Fprintf(b, "%s%s -> %s: %s\n", indent, v.From, v.To, d2Label(txt))
 				continue
 			}
 			fmt.Fprintf(b, "%s%s -> %s\n", indent, v.From, v.To)
@@ -346,7 +359,7 @@ func (e *seqEmitter) emit(b *strings.Builder, stmts []ast.SeqStmt, depth int) {
 			if len(v.Participants) > 0 {
 				key = v.Participants[0] + "." + key
 			}
-			fmt.Fprintf(b, "%s%s: %s\n", indent, key, strings.TrimSpace(v.Text))
+			fmt.Fprintf(b, "%s%s: %s\n", indent, key, d2Label(strings.TrimSpace(v.Text)))
 		case *ast.Loop:
 			e.group(b, depth, "loop", v.Label, v.Statements)
 		case *ast.Opt:
@@ -379,7 +392,7 @@ func (e *seqEmitter) group(b *strings.Builder, depth int, kind, label string, st
 	e.counts[kind]++
 	indent := strings.Repeat("  ", depth)
 	fmt.Fprintf(b, "%s%s_%d: {\n", indent, kind, e.counts[kind])
-	fmt.Fprintf(b, "%s  label: %s\n", indent, label)
+	fmt.Fprintf(b, "%s  label: %s\n", indent, d2Label(label))
 	e.emit(b, stmts, depth+1)
 	fmt.Fprintf(b, "%s}\n", indent)
 }

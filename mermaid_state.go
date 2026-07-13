@@ -33,7 +33,7 @@ func emitStateStmts(b *strings.Builder, stmts []ast.StateStmt, depth int) {
 		case *ast.State:
 			if v.IsComposite {
 				if v.Description != "" && v.Description != v.ID {
-					fmt.Fprintf(b, "%s%s: %s {\n", indent, v.ID, v.Description)
+					fmt.Fprintf(b, "%s%s: %s {\n", indent, v.ID, d2Label(v.Description))
 				} else {
 					fmt.Fprintf(b, "%s%s: {\n", indent, v.ID)
 				}
@@ -42,14 +42,14 @@ func emitStateStmts(b *strings.Builder, stmts []ast.StateStmt, depth int) {
 				continue
 			}
 			if v.Description != "" && v.Description != v.ID {
-				fmt.Fprintf(b, "%s%s: %s\n", indent, v.ID, v.Description)
+				fmt.Fprintf(b, "%s%s: %s\n", indent, v.ID, d2Label(v.Description))
 				continue
 			}
 			fmt.Fprintf(b, "%s%s\n", indent, v.ID)
 		case *ast.Transition:
 			line := fmt.Sprintf("%s%s -> %s", indent, v.From, v.To)
 			if lbl := strings.TrimSpace(v.Label); lbl != "" {
-				line += ": " + lbl
+				line += ": " + d2Label(lbl)
 			}
 			fmt.Fprintln(b, line)
 		case *ast.StartState:

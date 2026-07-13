@@ -67,9 +67,9 @@ func classRelationship(b *strings.Builder, r *ast.Relationship) {
 	attrs := classRelAttrs(r)
 	switch {
 	case r.Label != "" && attrs != "":
-		fmt.Fprintf(b, ": %s {%s}", r.Label, attrs)
+		fmt.Fprintf(b, ": %s {%s}", d2Label(r.Label), attrs)
 	case r.Label != "":
-		fmt.Fprintf(b, ": %s", r.Label)
+		fmt.Fprintf(b, ": %s", d2Label(r.Label))
 	case attrs != "":
 		fmt.Fprintf(b, ": {%s}", attrs)
 	}
