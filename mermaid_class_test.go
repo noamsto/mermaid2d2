@@ -27,10 +27,10 @@ func TestClassDiagramToD2(t *testing.T) {
 				"    }\n"),
 			want: "Animal: {\n" +
 				"  shape: class\n" +
-				"  +String: name\n" +
-				"  -int: age\n" +
-				"  \\#bool: alive\n" +
-				"  ~int: region\n" +
+				"  +name: String\n" +
+				"  -age: int\n" +
+				"  \\#alive: bool\n" +
+				"  ~region: int\n" +
 				"  +makeSound(String kind): int\n" +
 				"}\n",
 		},
