@@ -253,6 +253,40 @@ func TestMermaidToD2LabelQuoting(t *testing.T) {
 	}
 }
 
+func TestMermaidToD2FlowchartStyling(t *testing.T) {
+	tests := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "classDef becomes a D2 class applied to a node",
+			in: "flowchart TD\n" +
+				"    A[Start] --> B[End]\n" +
+				"    classDef hot fill:#f96,stroke:#333,stroke-width:2px\n" +
+				"    class A hot",
+			want: "classes: {\n" +
+				"  hot: {\n" +
+				"    style: {\n" +
+				"      fill: \"#f96\"\n" +
+				"      stroke: \"#333\"\n" +
+				"      stroke-width: 2\n" +
+				"    }\n" +
+				"  }\n" +
+				"}\n" +
+				"A: Start {class: hot}\n" +
+				"B: End\n" +
+				"A -> B\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assertConvertsTo(t, tt.in, tt.want)
+		})
+	}
+}
+
 // assertConvertsTo checks that MermaidToD2(in) equals want and that the output
 // is valid D2 (it compiles).
 func assertConvertsTo(t *testing.T, in, want string) {

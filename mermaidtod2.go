@@ -2,6 +2,7 @@ package mermaid2d2
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	mermaid "github.com/sammcj/mermaid-check"
@@ -64,8 +65,10 @@ func flowchartToD2(fc *ast.Flowchart) string {
 		containerOf: map[string]string{},
 		labelOf:     map[string]string{},
 		shapeOf:     map[string]string{},
+		classOf:     map[string][]string{},
 		byPath:      map[string]*d2Container{},
 		usedSlugs:   map[string]bool{},
+		classStyles: map[string][]string{},
 	}
 	root := &d2Container{}
 	e.byPath[""] = root
@@ -83,18 +86,22 @@ func flowchartToD2(fc *ast.Flowchart) string {
 	if dir := d2Direction(fc.Direction); dir != "" {
 		fmt.Fprintf(&b, "direction: %s\n", dir)
 	}
+	e.emitClasses(&b)
 	e.emit(&b, root, 0)
 	return b.String()
 }
 
 type flowEmitter struct {
-	containerOf map[string]string // node id -> container path (first mention wins)
-	labelOf     map[string]string // node id -> label
-	shapeOf     map[string]string // node id -> D2 shape keyword (non-default shapes only)
-	nodeOrder   []string          // node ids in first-seen order
+	containerOf map[string]string   // node id -> container path (first mention wins)
+	labelOf     map[string]string   // node id -> label
+	shapeOf     map[string]string   // node id -> D2 shape keyword (non-default shapes only)
+	classOf     map[string][]string // node id -> applied class names
+	nodeOrder   []string            // node ids in first-seen order
 	byPath      map[string]*d2Container
 	usedSlugs   map[string]bool
 	edges       []d2Edge
+	classStyles map[string][]string // classDef name -> D2 style lines (mappable only)
+	classOrder  []string            // classDef names in first-seen order
 }
 
 // note records a node's container on first mention; Mermaid binds a node to the
@@ -128,6 +135,18 @@ func (e *flowEmitter) walk(stmts []ast.Statement, c *d2Container) {
 				label: strings.TrimSpace(v.Label),
 				style: d2EdgeStyle(v.Arrow),
 			})
+		case *ast.ClassDef:
+			if lines := mermaidStyleToD2(v.Styles); len(lines) > 0 {
+				if _, seen := e.classStyles[v.Name]; !seen {
+					e.classOrder = append(e.classOrder, v.Name)
+				}
+				e.classStyles[v.Name] = lines
+			}
+		case *ast.ClassAssignment:
+			for _, id := range v.NodeIDs {
+				e.note(id, c.path)
+				e.classOf[id] = append(e.classOf[id], v.ClassName)
+			}
 		case *ast.Subgraph:
 			// The subgraph id is the D2 container id. The quoted-title form has
 			// no id, so fall back to a slug of the title.
@@ -161,12 +180,18 @@ func (e *flowEmitter) emit(b *strings.Builder, c *d2Container, depth int) {
 			continue
 		}
 		lbl, hasLbl := e.labelOf[id]
-		shape, hasShape := e.shapeOf[id]
+		var attrs []string
+		if shape, ok := e.shapeOf[id]; ok {
+			attrs = append(attrs, "shape: "+shape)
+		}
+		if class := e.nodeClass(id); class != "" {
+			attrs = append(attrs, "class: "+class)
+		}
 		switch {
-		case hasLbl && hasShape:
-			fmt.Fprintf(b, "%s%s: %s {shape: %s}\n", indent, id, d2Label(lbl), shape)
-		case hasShape:
-			fmt.Fprintf(b, "%s%s: {shape: %s}\n", indent, id, shape)
+		case hasLbl && len(attrs) > 0:
+			fmt.Fprintf(b, "%s%s: %s {%s}\n", indent, id, d2Label(lbl), strings.Join(attrs, "; "))
+		case len(attrs) > 0:
+			fmt.Fprintf(b, "%s%s: {%s}\n", indent, id, strings.Join(attrs, "; "))
 		case hasLbl:
 			fmt.Fprintf(b, "%s%s: %s\n", indent, id, d2Label(lbl))
 		}
@@ -197,6 +222,81 @@ func (e *flowEmitter) emit(b *strings.Builder, c *d2Container, depth int) {
 		}
 		fmt.Fprintln(b, line)
 	}
+}
+
+// emitClasses writes the top-level D2 `classes` block for every classDef that
+// mapped to at least one style. Empty style maps are omitted (D2 rejects them).
+func (e *flowEmitter) emitClasses(b *strings.Builder) {
+	if len(e.classOrder) == 0 {
+		return
+	}
+	b.WriteString("classes: {\n")
+	for _, name := range e.classOrder {
+		fmt.Fprintf(b, "  %s: {\n    style: {\n", name)
+		for _, line := range e.classStyles[name] {
+			fmt.Fprintf(b, "      %s\n", line)
+		}
+		b.WriteString("    }\n  }\n")
+	}
+	b.WriteString("}\n")
+}
+
+// nodeClass renders a node's D2 class attribute value, keeping only classes that
+// carry a style (a bare `class: x` to an undefined class is pointless). Returns
+// "" when the node has none; a single name, or the `[a; b]` array form.
+func (e *flowEmitter) nodeClass(id string) string {
+	var names []string
+	for _, n := range e.classOf[id] {
+		if _, ok := e.classStyles[n]; ok {
+			names = append(names, n)
+		}
+	}
+	switch len(names) {
+	case 0:
+		return ""
+	case 1:
+		return names[0]
+	default:
+		return "[" + strings.Join(names, "; ") + "]"
+	}
+}
+
+// mermaidStyleToD2 maps Mermaid classDef CSS properties onto D2 style lines in a
+// fixed order, dropping properties with no D2 equivalent. Colors are quoted (a
+// bare leading # is a D2 comment); numeric properties have any px unit stripped
+// and are dropped when the remaining value is not a number.
+func mermaidStyleToD2(css map[string]string) []string {
+	props := []struct {
+		css, d2 string
+		numeric bool
+	}{
+		{"fill", "fill", false},
+		{"stroke", "stroke", false},
+		{"stroke-width", "stroke-width", true},
+		{"stroke-dasharray", "stroke-dash", true},
+		{"color", "font-color", false},
+		{"font-size", "font-size", true},
+	}
+	var lines []string
+	for _, p := range props {
+		val := strings.TrimSpace(css[p.css])
+		if val == "" {
+			continue
+		}
+		if !p.numeric {
+			lines = append(lines, p.d2+": "+d2Label(val))
+			continue
+		}
+		fields := strings.Fields(strings.ReplaceAll(strings.TrimSuffix(val, "px"), ",", " "))
+		if len(fields) == 0 {
+			continue
+		}
+		if _, err := strconv.ParseFloat(fields[0], 64); err != nil {
+			continue
+		}
+		lines = append(lines, p.d2+": "+fields[0])
+	}
+	return lines
 }
 
 // rel renders a node id relative to a container scope, qualifying it with the
