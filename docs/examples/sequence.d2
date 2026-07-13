@@ -1,0 +1,17 @@
+shape: sequence_diagram
+C: Client
+S: Server
+C -> S: GET /diagram
+S.note_1: cache miss
+loop_1: {
+  label: retry on failure
+  S -> S: render
+}
+alt_1: {
+  label: success
+  S -> C: 200 OK
+}
+alt_2: {
+  label: error
+  S -> C: 500 Internal
+}

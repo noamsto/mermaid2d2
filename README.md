@@ -28,6 +28,42 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 State/class notes, sequence note side (left/right) and multi-participant spans,
 and mindmap icons are dropped.
 
+## Examples
+
+Each pair below is a Mermaid source (left) and the D2 that `m2d2` produces from
+it (right), both rendered to SVG. Regenerate with
+[`docs/examples/generate.sh`](docs/examples/generate.sh).
+
+### Flowchart
+
+<table>
+<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
+<tr>
+<td width="50%"><img src="docs/examples/flowchart.mermaid.svg" alt="Mermaid flowchart" width="100%"></td>
+<td width="50%"><img src="docs/examples/flowchart.d2.svg" alt="D2 flowchart" width="100%"></td>
+</tr>
+</table>
+
+### Sequence
+
+<table>
+<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
+<tr>
+<td width="50%"><img src="docs/examples/sequence.mermaid.svg" alt="Mermaid sequence diagram" width="100%"></td>
+<td width="50%"><img src="docs/examples/sequence.d2.svg" alt="D2 sequence diagram" width="100%"></td>
+</tr>
+</table>
+
+### Entity relationship
+
+<table>
+<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
+<tr>
+<td width="50%"><img src="docs/examples/er.mermaid.svg" alt="Mermaid ER diagram" width="100%"></td>
+<td width="50%"><img src="docs/examples/er.d2.svg" alt="D2 ER diagram" width="100%"></td>
+</tr>
+</table>
+
 ## CLI
 
 ```sh

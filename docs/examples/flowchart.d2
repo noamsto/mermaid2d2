@@ -1,0 +1,12 @@
+direction: right
+Parse: Valid? {shape: diamond}
+Build: Build graph
+Fail: Report error
+pipeline: Conversion pipeline {
+  Emit: Emit D2
+}
+Start -> Parse
+Parse -> Build: yes
+Parse -> Fail: no
+Build -> pipeline.Emit
+pipeline.Emit -> Done

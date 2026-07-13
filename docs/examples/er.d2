@@ -1,0 +1,12 @@
+CUSTOMER: {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  name: string
+  email: string {constraint: unique}
+}
+ORDER: {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  customer_id: int {constraint: foreign_key}
+}
+CUSTOMER -> ORDER: places {source-arrowhead: {label: 1}; target-arrowhead: {label: 0..N}}
