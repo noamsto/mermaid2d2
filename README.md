@@ -8,7 +8,7 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 | Direction | Status |
 |---|---|
 | **D2 → Mermaid** | Implemented — graph/flowchart diagrams (nodes, containers, edges, direction) |
-| **Mermaid → D2** | Implemented — flowchart (nodes, subgraphs, edges, direction) and sequence (participants, messages, loop/alt/opt groups) |
+| **Mermaid → D2** | Implemented — flowchart, sequenceDiagram, stateDiagram-v2, classDiagram, erDiagram, and mindmap |
 
 D2 → Mermaid maps D2's node/container/edge graph onto a Mermaid `flowchart`:
 containers become `subgraph`s, connections become edges, and the board
