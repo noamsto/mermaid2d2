@@ -5,46 +5,38 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 
 ## Coverage
 
+✅ supported · 🚧 planned · ⛔ blocked by [upstream parser](https://github.com/sammcj/mermaid-check) · ❌ no equivalent in the other format
+
 ### Mermaid → D2
 
-| Mermaid | D2 target | Mapped features |
-|---|---|---|
-| `flowchart` / `graph` | shapes, connections, containers | subgraphs → containers (membership preserved via qualified edge endpoints); node shapes (rhombus → `diamond`, hexagon, circle, cylinder, stadium → `oval`); dotted (`-.->`) / thick (`==>`) edges → stroke style; `classDef`/`class` styling → D2 `classes`; direction |
-| `sequenceDiagram` | `sequence_diagram` | participants + aliases; messages; `loop`/`alt`/`opt`/`par`/`critical` → labeled groups; `Note` → D2 note |
-| `stateDiagram-v2` | nodes + connections | composite states → containers; `[*]` → sentinel start/end circles; transitions → connections; choice → `diamond` |
-| `classDiagram` | `class` shapes | typed members with visibility; relationships → connections with UML arrowheads (inheritance, composition, aggregation, …) |
-| `erDiagram` | `sql_table` shapes | typed columns; PK/FK/UK → column constraints; crow's-foot cardinalities → arrowhead labels |
-| `mindmap` | node tree | nodes connected to their parent; mapped node shapes |
-| pie, gantt, journey, xychart, gitGraph, … | — | no graph equivalent → error |
+| Diagram | | Maps to |
+|---|:--:|---|
+| `flowchart` / `graph` | ✅ | shapes · edge styles · subgraphs · colors |
+| `sequenceDiagram` | ✅ | messages · loop/alt/opt groups · notes |
+| `stateDiagram-v2` | ✅ | states · transitions · composites · start/end |
+| `classDiagram` | ✅ | members · UML arrowheads |
+| `erDiagram` | ✅ | `sql_table` · keys · cardinalities |
+| `mindmap` | ✅ | node tree · shapes |
+| C4 | 🚧 | [#29](https://github.com/noamsto/mermaid2d2/issues/29) |
+| pie · gantt · journey · xychart · gitGraph | ❌ | no D2 graph analog |
 
 ### D2 → Mermaid
 
-| D2 | Mermaid target | Mapped features |
-|---|---|---|
-| nodes, containers, connections, direction | `flowchart` | containers → `subgraph`s; connections → edges; board direction → orientation |
-| sql_table, class shapes, styling | *(not yet)* | reverse converter is flowchart-only; these have Mermaid equivalents (`erDiagram`, `classDiagram`, `classDef`) that aren't emitted yet |
-| grids | — | no Mermaid equivalent |
+| Feature | | Maps to |
+|---|:--:|---|
+| nodes · containers · connections · direction | ✅ | `flowchart` |
+| `sql_table` · `class` · styling | 🚧 | [#28](https://github.com/noamsto/mermaid2d2/issues/28) |
+| grids | ❌ | no Mermaid equivalent |
 
-## Limitations
+### Features
 
-Labels containing D2 syntax characters are quoted automatically. Flowchart
-`classDef`/`class` colors are mapped (fill, stroke, stroke-width, `color` → font
-color, `stroke-dasharray`). Everything else that isn't carried over falls into
-one of three buckets:
-
-- **Not yet implemented (mappable).** Notes on state and class diagrams (D2 has
-  `tooltip`/`near`); the reverse direction emits only `flowchart`, so D2
-  `sql_table`/`class`/styling aren't yet turned into Mermaid
-  `erDiagram`/`classDiagram`/`classDef`; C4 diagrams (mappable to containers,
-  awkward) return an error for now.
-- **Blocked upstream (parser).** Inline `style …` statements and the `:::class`
-  shorthand — [`sammcj/mermaid-check`](https://github.com/sammcj/mermaid-check)
-  doesn't parse them. D2 supports the equivalent, and `classDef`/`class` already
-  work, so this is a parser gap rather than a D2 one.
-- **No target equivalent.** Chart/timeline types (pie, gantt, journey, xychart,
-  quadrant, gitGraph, …) have no D2 graph analog and return an error; a sequence
-  note's side (left/right) and multi-participant spans, mindmap Font Awesome
-  icons, and D2 grids (reverse) have no counterpart in the other format.
+| | | |
+|---|:--:|---|
+| Label quoting (special chars) | ✅ | auto-quoted |
+| Flowchart `classDef`/`class` colors | ✅ | → D2 `classes` |
+| State / class diagram notes | 🚧 | [#27](https://github.com/noamsto/mermaid2d2/issues/27) |
+| Inline `style` · `:::class` | ⛔ | not parsed upstream |
+| Sequence note side · spans · mindmap icons | ❌ | no D2 counterpart |
 
 ## Examples
 
