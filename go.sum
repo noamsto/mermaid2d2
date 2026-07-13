@@ -24,6 +24,8 @@ github.com/mazznoer/csscolorparser v0.1.5 h1:Wr4uNIE+pHWN3TqZn2SGpA2nLRG064gB7Wd
 github.com/mazznoer/csscolorparser v0.1.5/go.mod h1:OQRVvgCyHDCAquR1YWfSwwaDcM0LhnSffGnlbOew/3I=
 github.com/noamsto/mermaid-check v0.1.0 h1:JbiESvz9yDJKMpY2U1fI5bYzc+LmGyiyxdXgKtTpR4Y=
 github.com/noamsto/mermaid-check v0.1.0/go.mod h1:+W2oNOzvpSoREAdqe2g3Mk3VZBEFuTN/Iq8aYRll7OM=
+github.com/noamsto/mermaid-check v0.1.1 h1:mQbYqq7bIB1F0/Pc07/+nTg+8VZ/qb16UpvJ4VBl8r8=
+github.com/noamsto/mermaid-check v0.1.1/go.mod h1:+W2oNOzvpSoREAdqe2g3Mk3VZBEFuTN/Iq8aYRll7OM=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rivo/uniseg v0.4.7 h1:WUdvkW8uEhrYfLC4ZzdpI2ztxP1I582+49Oc5Mq64VQ=
