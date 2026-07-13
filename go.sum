@@ -28,6 +28,8 @@ github.com/noamsto/mermaid-check v0.1.1 h1:mQbYqq7bIB1F0/Pc07/+nTg+8VZ/qb16UpvJ4
 github.com/noamsto/mermaid-check v0.1.1/go.mod h1:+W2oNOzvpSoREAdqe2g3Mk3VZBEFuTN/Iq8aYRll7OM=
 github.com/noamsto/mermaid-check v0.1.2 h1:FnRDr5BBlocB+UEJsraVRQgYfiDRStqgrS/6D+MPPr0=
 github.com/noamsto/mermaid-check v0.1.2/go.mod h1:+W2oNOzvpSoREAdqe2g3Mk3VZBEFuTN/Iq8aYRll7OM=
+github.com/noamsto/mermaid-check v0.1.3 h1:8Xt/caldknZGbPZ9jdl91Og+AF3b1MP+JBVc7yXb4A0=
+github.com/noamsto/mermaid-check v0.1.3/go.mod h1:+W2oNOzvpSoREAdqe2g3Mk3VZBEFuTN/Iq8aYRll7OM=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rivo/uniseg v0.4.7 h1:WUdvkW8uEhrYfLC4ZzdpI2ztxP1I582+49Oc5Mq64VQ=

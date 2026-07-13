@@ -65,28 +65,18 @@ func TestStateDiagramToD2(t *testing.T) {
 	}
 }
 
-// TestStateDiagramToD2Composite exercises the composite-container path with a
-// hand-built AST: the current mermaid-check parser flattens composite states
-// rather than populating State.Nested, so this case cannot be reached via Parse.
+// TestStateDiagramToD2Composite exercises the composite-container path via a
+// real parse (mermaid-check v0.1.3+ populates State.IsComposite/Nested).
 func TestStateDiagramToD2Composite(t *testing.T) {
-	sd := &ast.StateDiagram{
-		Type: "stateDiagram-v2",
-		Statements: []ast.StateStmt{
-			&ast.StartState{To: "First"},
-			&ast.State{
-				ID:          "First",
-				Description: "Big Room",
-				IsComposite: true,
-				Nested: []ast.StateStmt{
-					&ast.StartState{To: "s2"},
-					&ast.State{ID: "s2", Description: "Second"},
-					&ast.Transition{From: "s2", To: "s3"},
-					&ast.EndState{From: "s3"},
-				},
-			},
-			&ast.EndState{From: "First"},
-		},
-	}
+	sd := parseState(t, "stateDiagram-v2\n"+
+		"    [*] --> First\n"+
+		"    state \"Big Room\" as First {\n"+
+		"        [*] --> s2\n"+
+		"        state \"Second\" as s2\n"+
+		"        s2 --> s3\n"+
+		"        s3 --> [*]\n"+
+		"    }\n"+
+		"    First --> [*]")
 	want := "start: {shape: circle}\n" +
 		"start -> First\n" +
 		"First: Big Room {\n" +
