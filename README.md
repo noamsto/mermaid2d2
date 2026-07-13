@@ -15,20 +15,36 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 | `classDiagram` | `class` shapes | typed members with visibility; relationships → connections with UML arrowheads (inheritance, composition, aggregation, …) |
 | `erDiagram` | `sql_table` shapes | typed columns; PK/FK/UK → column constraints; crow's-foot cardinalities → arrowhead labels |
 | `mindmap` | node tree | nodes connected to their parent; mapped node shapes |
-| pie, gantt, journey, C4, … | — | unsupported → error |
+| pie, gantt, journey, xychart, gitGraph, … | — | no graph equivalent → error |
 
 ### D2 → Mermaid
 
 | D2 | Mermaid target | Mapped features |
 |---|---|---|
 | nodes, containers, connections, direction | `flowchart` | containers → `subgraph`s; connections → edges; board direction → orientation |
-| sql_table, class shapes, grids, styling | — | dropped (no `flowchart` equivalent) |
+| sql_table, class shapes, styling | *(not yet)* | reverse converter is flowchart-only; these have Mermaid equivalents (`erDiagram`, `classDiagram`, `classDef`) that aren't emitted yet |
+| grids | — | no Mermaid equivalent |
 
-**Limitations.** Labels containing D2 syntax characters are quoted automatically.
-Flowchart `classDef`/`class` colors are mapped (fill, stroke, stroke-width,
-`color` → font color, `stroke-dasharray`); other styling — inline `style`
-statements, and styling on non-flowchart diagrams — plus notes, sequence note
-side, and mindmap icons, are dropped.
+## Limitations
+
+Labels containing D2 syntax characters are quoted automatically. Flowchart
+`classDef`/`class` colors are mapped (fill, stroke, stroke-width, `color` → font
+color, `stroke-dasharray`). Everything else that isn't carried over falls into
+one of three buckets:
+
+- **Not yet implemented (mappable).** Notes on state and class diagrams (D2 has
+  `tooltip`/`near`); the reverse direction emits only `flowchart`, so D2
+  `sql_table`/`class`/styling aren't yet turned into Mermaid
+  `erDiagram`/`classDiagram`/`classDef`; C4 diagrams (mappable to containers,
+  awkward) return an error for now.
+- **Blocked upstream (parser).** Inline `style …` statements and the `:::class`
+  shorthand — [`sammcj/mermaid-check`](https://github.com/sammcj/mermaid-check)
+  doesn't parse them. D2 supports the equivalent, and `classDef`/`class` already
+  work, so this is a parser gap rather than a D2 one.
+- **No target equivalent.** Chart/timeline types (pie, gantt, journey, xychart,
+  quadrant, gitGraph, …) have no D2 graph analog and return an error; a sequence
+  note's side (left/right) and multi-participant spans, mindmap Font Awesome
+  icons, and D2 grids (reverse) have no counterpart in the other format.
 
 ## Examples
 
