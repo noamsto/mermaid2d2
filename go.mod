@@ -3,7 +3,7 @@ module github.com/noamsto/mermaid2d2
 go 1.26.2
 
 require (
-	github.com/sammcj/mermaid-check v0.0.4
+	github.com/noamsto/mermaid-check v0.1.0
 	oss.terrastruct.com/d2 v0.7.1
 )
 
@@ -27,5 +27,3 @@ require (
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	oss.terrastruct.com/util-go v0.0.0-20250213174338-243d8661088a // indirect
 )
-
-replace github.com/sammcj/mermaid-check => github.com/noamsto/mermaid-check v0.0.0-20260712172721-8a269fc47b61

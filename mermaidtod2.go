@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	mermaid "github.com/sammcj/mermaid-check"
-	"github.com/sammcj/mermaid-check/ast"
+	mermaid "github.com/noamsto/mermaid-check"
+	"github.com/noamsto/mermaid-check/ast"
 )
 
 // MermaidToD2 parses Mermaid source and emits equivalent D2.
