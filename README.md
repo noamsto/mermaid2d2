@@ -88,6 +88,14 @@ out, err := mermaid2d2.D2ToMermaid(src)
 d2, err := mermaid2d2.MermaidToD2(src)
 ```
 
+> **Note:** the CLI (`go install …/cmd/m2d2@latest`) works today, but importing
+> this as a **library** doesn't build yet. `go.mod` pins the Mermaid parser to a
+> fork of `sammcj/mermaid-check` via a `replace` directive, and Go only applies
+> `replace` to the main module — a downstream consumer would resolve upstream
+> `mermaid-check` (which lacks fields this converter uses) and fail to compile.
+> Library use will be supported once the fork is dropped for a tagged upstream
+> release (see [#2](https://github.com/noamsto/mermaid2d2/issues/2)).
+
 ## Development
 
 The repo ships a Nix flake with a Go devShell, formatting, and pre-commit hooks:
