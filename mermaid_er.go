@@ -80,9 +80,9 @@ func erRelationship(b *strings.Builder, r *ast.ERRelationship) {
 	attr := strings.Join(attrs, "; ")
 	switch {
 	case label != "" && attr != "":
-		fmt.Fprintf(b, ": %s {%s}", label, attr)
+		fmt.Fprintf(b, ": %s {%s}", d2Label(label), attr)
 	case label != "":
-		fmt.Fprintf(b, ": %s", label)
+		fmt.Fprintf(b, ": %s", d2Label(label))
 	case attr != "":
 		fmt.Fprintf(b, ": {%s}", attr)
 	}
