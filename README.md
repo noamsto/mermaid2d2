@@ -29,9 +29,11 @@ diamonds). A `classDiagram` maps onto D2 `class` shapes, with relationships
 becoming connections whose arrowheads encode the UML relation type (inheritance,
 composition, aggregation, …). An `erDiagram` maps onto D2 `sql_table` shapes
 (attributes become typed columns; PK/FK/UK keys become column constraints;
-relationship cardinalities become arrowhead labels). State and class notes have
-no D2 equivalent and are dropped; diagram types other than flowchart, sequence,
-state, class, and er return an error.
+relationship cardinalities become arrowhead labels). A `mindmap` maps onto a D2
+tree — each node becomes a shape connected to its parent (shapes with a D2
+equivalent are mapped; icons are dropped). State and class notes have no D2
+equivalent and are dropped; diagram types other than flowchart, sequence, state,
+class, er, and mindmap return an error.
 
 ## CLI
 
