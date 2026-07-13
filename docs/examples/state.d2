@@ -1,0 +1,10 @@
+start: {shape: circle}
+start -> Active
+end: {shape: circle}
+Active -> end
+Active: {
+  start: {shape: circle}
+  start -> Idle
+  Idle -> Running: start
+  Running -> Idle: stop
+}

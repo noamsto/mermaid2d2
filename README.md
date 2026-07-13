@@ -74,6 +74,26 @@ it (right), both rendered to SVG. Regenerate with
 </tr>
 </table>
 
+### Class
+
+<table>
+<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
+<tr>
+<td width="50%"><img src="docs/examples/class.mermaid.svg" alt="Mermaid class diagram" width="100%"></td>
+<td width="50%"><img src="docs/examples/class.d2.svg" alt="D2 class diagram" width="100%"></td>
+</tr>
+</table>
+
+### State
+
+<table>
+<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
+<tr>
+<td width="50%"><img src="docs/examples/state.mermaid.svg" alt="Mermaid state diagram" width="100%"></td>
+<td width="50%"><img src="docs/examples/state.d2.svg" alt="D2 state diagram" width="100%"></td>
+</tr>
+</table>
+
 ## CLI
 
 ```sh

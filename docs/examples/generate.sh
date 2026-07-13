@@ -15,7 +15,7 @@ repo="$(cd "$here/../.." && pwd)"
 mmdc="${MMDC:-mmdc}"
 d2="${D2:-d2}"
 
-for name in flowchart sequence er; do
+for name in flowchart sequence er class state; do
 	src="$repo/testdata/$name.mmd"
 	"$mmdc" -i "$src" -o "$here/$name.mermaid.svg" -b white
 	go -C "$repo" run ./cmd/m2d2 -to d2 "$src" >"$here/$name.d2"

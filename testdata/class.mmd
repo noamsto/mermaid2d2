@@ -3,5 +3,6 @@ classDiagram
         +String id
         +submit(String coupon) bool
     }
+    Entity <|-- Order
     Order *-- LineItem
     Order --> Customer : placed by
