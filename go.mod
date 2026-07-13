@@ -3,7 +3,7 @@ module github.com/noamsto/mermaid2d2
 go 1.26.2
 
 require (
-	github.com/noamsto/mermaid-check v0.1.1
+	github.com/noamsto/mermaid-check v0.1.2
 	oss.terrastruct.com/d2 v0.7.1
 )
 

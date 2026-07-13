@@ -32,7 +32,7 @@
           pname = "m2d2";
           version = "0.2.0";
           src = ./.;
-          vendorHash = "sha256-2yt3Gmw/seLTC4mW9XZHKD6dPTAi2f69beQG5rLtYso=";
+          vendorHash = "sha256-BP46yj97Pl/kaJOuFXnxpEJ4AEn+5p78DjWzQqDO5HI=";
           subPackages = ["cmd/m2d2"];
           ldflags = ["-s" "-w"];
           meta = {

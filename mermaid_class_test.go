@@ -40,12 +40,8 @@ func TestClassDiagramToD2(t *testing.T) {
 			want: "Dog: {shape: class}\n",
 		},
 		{
-			// The parser drops inheritance edges, so build the AST directly to
-			// exercise the arrowhead mapping.
 			name: "inheritance relationship",
-			cd: &ast.ClassDiagram{Statements: []ast.ClassStmt{
-				&ast.Relationship{From: "Dog", To: "Animal", Type: "inheritance"},
-			}},
+			cd:   parseClassDiagram(t, "classDiagram\n    Dog --|> Animal"),
 			want: "Dog -> Animal: {target-arrowhead: {shape: triangle; style.filled: false}}\n",
 		},
 		{
