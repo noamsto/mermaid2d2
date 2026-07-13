@@ -9,7 +9,7 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 
 | Mermaid | D2 target | Mapped features |
 |---|---|---|
-| `flowchart` / `graph` | shapes, connections, containers | subgraphs → containers (membership preserved via qualified edge endpoints); node shapes (rhombus → `diamond`, hexagon, circle, cylinder, stadium → `oval`); dotted (`-.->`) / thick (`==>`) edges → stroke style; direction |
+| `flowchart` / `graph` | shapes, connections, containers | subgraphs → containers (membership preserved via qualified edge endpoints); node shapes (rhombus → `diamond`, hexagon, circle, cylinder, stadium → `oval`); dotted (`-.->`) / thick (`==>`) edges → stroke style; `classDef`/`class` styling → D2 `classes`; direction |
 | `sequenceDiagram` | `sequence_diagram` | participants + aliases; messages; `loop`/`alt`/`opt`/`par`/`critical` → labeled groups; `Note` → D2 note |
 | `stateDiagram-v2` | nodes + connections | composite states → containers; `[*]` → sentinel start/end circles; transitions → connections; choice → `diamond` |
 | `classDiagram` | `class` shapes | typed members with visibility; relationships → connections with UML arrowheads (inheritance, composition, aggregation, …) |
@@ -25,8 +25,10 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 | sql_table, class shapes, grids, styling | — | dropped (no `flowchart` equivalent) |
 
 **Limitations.** Labels containing D2 syntax characters are quoted automatically.
-State/class notes, sequence note side (left/right) and multi-participant spans,
-and mindmap icons are dropped.
+Flowchart `classDef`/`class` colors are mapped (fill, stroke, stroke-width,
+`color` → font color, `stroke-dasharray`); other styling — inline `style`
+statements, and styling on non-flowchart diagrams — plus notes, sequence note
+side, and mindmap icons, are dropped.
 
 ## Examples
 

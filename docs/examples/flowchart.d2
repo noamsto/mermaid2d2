@@ -1,7 +1,16 @@
 direction: right
+classes: {
+  error: {
+    style: {
+      fill: "#fdd"
+      stroke: "#c00"
+      stroke-width: 2
+    }
+  }
+}
 Parse: Valid? {shape: diamond}
 Build: Build graph
-Fail: Report error
+Fail: Report error {class: error}
 pipeline: Conversion pipeline {
   Emit: Emit D2
 }
