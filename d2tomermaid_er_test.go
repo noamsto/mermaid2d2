@@ -15,7 +15,7 @@ func TestErDiagramFromD2Entities(t *testing.T) {
 		want string
 	}{
 		{
-			name: "entities with keys",
+			name: "entities with keys and a labeled relationship",
 			in: "CUSTOMER: {\n" +
 				"  shape: sql_table\n" +
 				"  id: int {constraint: primary_key}\n" +
@@ -25,7 +25,8 @@ func TestErDiagramFromD2Entities(t *testing.T) {
 				"  shape: sql_table\n" +
 				"  id: int {constraint: primary_key}\n" +
 				"  customer_id: int {constraint: foreign_key}\n" +
-				"}\n",
+				"}\n" +
+				"CUSTOMER -> ORDER: places {source-arrowhead: {label: 1}; target-arrowhead: {label: 0..N}}\n",
 			want: "erDiagram\n" +
 				"    CUSTOMER {\n" +
 				"        int id PK\n" +
@@ -34,7 +35,8 @@ func TestErDiagramFromD2Entities(t *testing.T) {
 				"    ORDER {\n" +
 				"        int id PK\n" +
 				"        int customer_id FK\n" +
-				"    }\n",
+				"    }\n" +
+				"    CUSTOMER ||--o{ ORDER : places\n",
 		},
 		{
 			name: "entity without attributes",

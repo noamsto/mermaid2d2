@@ -17,7 +17,52 @@ func erDiagramFromD2(graph *d2graph.Graph) string {
 	for _, obj := range graph.Root.ChildrenArray {
 		erEntityBlock(&b, obj.IDVal, obj.SQLTable)
 	}
+	for _, e := range graph.Edges {
+		fmt.Fprintf(&b, "    %s\n", erRelationshipLine(e))
+	}
 	return b.String()
+}
+
+// erRelationshipLine renders a D2 connection between two sql_table objects as
+// a Mermaid crow's-foot relationship: "From <left>--<right> To[: label]".
+func erRelationshipLine(e *d2graph.Edge) string {
+	left := erLeftSymbol(arrowheadLabel(e.SrcArrowhead))
+	right := erRightSymbol(arrowheadLabel(e.DstArrowhead))
+	line := fmt.Sprintf("%s %s--%s %s", e.Src.IDVal, left, right, e.Dst.IDVal)
+	if lbl := strings.TrimSpace(e.Label.Value); lbl != "" {
+		line += " : " + lbl
+	}
+	return line
+}
+
+// erLeftSymbol maps a source-arrowhead cardinality label onto the crow's-foot
+// symbol touching the left (source) entity. Missing/unrecognized labels
+// default to "one" ("||"), matching Mermaid's mandatory-cardinality grammar.
+func erLeftSymbol(label string) string {
+	switch label {
+	case "0..1":
+		return "|o"
+	case "1..N":
+		return "}|"
+	case "0..N":
+		return "}o"
+	default:
+		return "||"
+	}
+}
+
+// erRightSymbol is erLeftSymbol's mirror for the target (right) entity.
+func erRightSymbol(label string) string {
+	switch label {
+	case "0..1":
+		return "o|"
+	case "1..N":
+		return "|{"
+	case "0..N":
+		return "o{"
+	default:
+		return "||"
+	}
 }
 
 func erEntityBlock(b *strings.Builder, id string, t *d2target.SQLTable) {

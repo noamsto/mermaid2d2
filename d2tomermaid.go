@@ -132,3 +132,13 @@ func sanitizeID(absID string) string {
 	}
 	return id
 }
+
+// arrowheadLabel returns the label carried by a connection's source/target
+// arrowhead attributes (D2's source-arrowhead/target-arrowhead), or "" if the
+// arrowhead has no label or is absent entirely.
+func arrowheadLabel(a *d2graph.Attributes) string {
+	if a == nil {
+		return ""
+	}
+	return strings.TrimSpace(a.Label.Value)
+}
