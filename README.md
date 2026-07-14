@@ -17,7 +17,7 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 | `classDiagram` | ✅ | members · UML arrowheads |
 | `erDiagram` | ✅ | `sql_table` · keys · cardinalities |
 | `mindmap` | ✅ | node tree · shapes |
-| C4 | 🚧 | [#29](https://github.com/noamsto/mermaid2d2/issues/29) |
+| `C4Context`/`C4Container`/`C4Component`/`C4Dynamic`/`C4Deployment` | ✅ | elements → nodes · boundaries → containers · `Rel` → connections |
 | pie · gantt · journey · xychart · gitGraph | ❌ | no D2 graph analog |
 
 ### D2 → Mermaid
@@ -37,6 +37,7 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 | State / class diagram notes | 🚧 | [#27](https://github.com/noamsto/mermaid2d2/issues/27) |
 | Inline `style` · `:::class` | 🚧 | needs parser support in the fork |
 | Sequence note side · spans · mindmap icons | ❌ | no D2 counterpart |
+| C4 diagram title · sprites · tags · links · `UpdateElementStyle`/`UpdateRelStyle` | ❌ | no D2 counterpart; D2 has no native C4 notation |
 
 ## Examples
 

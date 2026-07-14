@@ -1,0 +1,14 @@
+C4Context
+    title Internet Banking System
+    Person(customer, "Personal Banking Customer", "A customer of the bank")
+    Enterprise_Boundary(b0, "Internet Banking Boundary") {
+        System(banking, "Internet Banking System", "Allows customers to check balances")
+        System_Boundary(b1, "Supporting Systems") {
+            System(mainframe, "Mainframe Banking System", "Core banking system")
+        }
+    }
+    System_Ext(email, "E-mail System", "Sends emails to customers")
+    Rel(customer, banking, "Views balances using", "HTTPS")
+    Rel(banking, mainframe, "Uses")
+    Rel(banking, email, "Sends emails using", "SMTP")
+    Rel_Back(email, customer, "Notifies")
