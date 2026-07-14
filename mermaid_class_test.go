@@ -89,6 +89,14 @@ func TestClassDiagramToD2(t *testing.T) {
 				"Dog.tooltip: dog note\n" +
 				"note_1: floating note\n",
 		},
+		{
+			name: "standalone note skips an id already taken by a class name",
+			cd: parseClassDiagram(t, "classDiagram\n"+
+				"    class note_1\n"+
+				"    note \"floating note\"\n"),
+			want: "note_1: {shape: class}\n" +
+				"note_2: floating note\n",
+		},
 	}
 
 	for _, tt := range tests {
