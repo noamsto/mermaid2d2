@@ -30,3 +30,31 @@ func TestD2ToMermaidFlowchartStyling(t *testing.T) {
 		t.Errorf("D2ToMermaid(%q)\n got:\n%s\nwant:\n%s", in, got, want)
 	}
 }
+
+func TestD2ToMermaidFlowchartStylingDasharrayAndFontSize(t *testing.T) {
+	in := "classes: {\n" +
+		"  dashed: {\n" +
+		"    style: {\n" +
+		"      stroke-dash: 5\n" +
+		"      font-size: 20\n" +
+		"    }\n" +
+		"  }\n" +
+		"}\n" +
+		"A: Start {class: dashed}\n" +
+		"B: End\n" +
+		"A -> B\n"
+	want := "flowchart TD\n" +
+		"    A[\"Start\"]\n" +
+		"    B[\"End\"]\n" +
+		"    A --> B\n" +
+		"    classDef dashed stroke-dasharray:5,font-size:20px\n" +
+		"    class A dashed\n"
+
+	got, err := D2ToMermaid(in)
+	if err != nil {
+		t.Fatalf("D2ToMermaid(%q) error: %v", in, err)
+	}
+	if got != want {
+		t.Errorf("D2ToMermaid(%q)\n got:\n%s\nwant:\n%s", in, got, want)
+	}
+}

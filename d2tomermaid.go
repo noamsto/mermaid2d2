@@ -199,6 +199,28 @@ func sanitizeID(absID string) string {
 	return id
 }
 
+// erIDs assigns Mermaid-safe, all-uppercase entity/relationship identifiers
+// (erDiagram's grammar accepts only [A-Z_][A-Z0-9_-]*, stricter than
+// flowchart/classDiagram's case-insensitive word-character identifiers), with
+// collision suffixing if uppercasing merges two distinct sanitized ids.
+type erIDs struct {
+	ids  map[*d2graph.Object]string
+	used map[string]bool
+}
+
+func (e *erIDs) id(obj *d2graph.Object) string {
+	if id, ok := e.ids[obj]; ok {
+		return id
+	}
+	id := strings.ToUpper(sanitizeID(obj.AbsID()))
+	for e.used[id] {
+		id += "_"
+	}
+	e.used[id] = true
+	e.ids[obj] = id
+	return id
+}
+
 // arrowheadLabel returns the label carried by a connection's source/target
 // arrowhead attributes (D2's source-arrowhead/target-arrowhead), or "" if the
 // arrowhead has no label or is absent entirely.

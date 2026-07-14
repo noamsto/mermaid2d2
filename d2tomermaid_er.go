@@ -12,23 +12,24 @@ import (
 // Mermaid erDiagram. Callers (D2ToMermaid, via detectMermaidKind) guarantee
 // every object in graph.Root.ChildrenArray has shape: sql_table.
 func erDiagramFromD2(graph *d2graph.Graph) string {
+	ids := &erIDs{ids: map[*d2graph.Object]string{}, used: map[string]bool{}}
 	var b strings.Builder
 	b.WriteString("erDiagram\n")
 	for _, obj := range graph.Root.ChildrenArray {
-		erEntityBlock(&b, obj.IDVal, obj.SQLTable)
+		erEntityBlock(&b, ids.id(obj), obj.SQLTable)
 	}
 	for _, e := range graph.Edges {
-		fmt.Fprintf(&b, "    %s\n", erRelationshipLine(e))
+		fmt.Fprintf(&b, "    %s\n", erRelationshipLine(ids, e))
 	}
 	return b.String()
 }
 
 // erRelationshipLine renders a D2 connection between two sql_table objects as
 // a Mermaid crow's-foot relationship: "From <left>--<right> To[: label]".
-func erRelationshipLine(e *d2graph.Edge) string {
+func erRelationshipLine(ids *erIDs, e *d2graph.Edge) string {
 	left := erLeftSymbol(arrowheadLabel(e.SrcArrowhead))
 	right := erRightSymbol(arrowheadLabel(e.DstArrowhead))
-	line := fmt.Sprintf("%s %s--%s %s", e.Src.IDVal, left, right, e.Dst.IDVal)
+	line := fmt.Sprintf("%s %s--%s %s", ids.id(e.Src), left, right, ids.id(e.Dst))
 	if lbl := strings.TrimSpace(e.Label.Value); lbl != "" {
 		line += " : " + lbl
 	}

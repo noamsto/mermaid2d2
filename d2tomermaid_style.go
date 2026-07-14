@@ -58,7 +58,7 @@ func d2StyleToMermaid(s d2graph.Style) []string {
 		{s.Fill, "fill", false},
 		{s.Stroke, "stroke", false},
 		{s.StrokeWidth, "stroke-width", true},
-		{s.StrokeDash, "stroke-dasharray", true},
+		{s.StrokeDash, "stroke-dasharray", false},
 		{s.FontColor, "color", false},
 		{s.FontSize, "font-size", true},
 	}

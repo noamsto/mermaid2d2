@@ -12,35 +12,34 @@ import (
 // Mermaid classDiagram. Callers (D2ToMermaid, via detectMermaidKind) guarantee
 // every object in graph.Root.ChildrenArray has shape: class.
 func classDiagramFromD2(graph *d2graph.Graph) string {
+	e := &mermaidEmitter{ids: map[*d2graph.Object]string{}, used: map[string]bool{}}
 	var b strings.Builder
 	b.WriteString("classDiagram\n")
 	for _, obj := range graph.Root.ChildrenArray {
-		if obj.Class != nil {
-			classBlock(&b, obj.IDVal, obj.Class)
-		}
+		classBlock(&b, e.id(obj), obj.Class)
 	}
-	for _, e := range graph.Edges {
-		fmt.Fprintf(&b, "    %s\n", classRelationshipLine(e))
+	for _, edge := range graph.Edges {
+		fmt.Fprintf(&b, "    %s\n", classRelationshipLine(e, edge))
 	}
 	return b.String()
 }
 
 // classRelationshipLine renders a D2 connection between two class objects as
 // a Mermaid UML relationship: 'From ["fromLabel"] <symbol> ["toLabel"] To[: label]'.
-func classRelationshipLine(e *d2graph.Edge) string {
+func classRelationshipLine(e *mermaidEmitter, edge *d2graph.Edge) string {
 	var b strings.Builder
-	b.WriteString(e.Src.IDVal)
+	b.WriteString(e.id(edge.Src))
 	b.WriteByte(' ')
-	if lbl := arrowheadLabel(e.SrcArrowhead); lbl != "" {
+	if lbl := arrowheadLabel(edge.SrcArrowhead); lbl != "" {
 		fmt.Fprintf(&b, "%q ", lbl)
 	}
-	b.WriteString(classSymbol(classRelType(e)))
-	if lbl := arrowheadLabel(e.DstArrowhead); lbl != "" {
+	b.WriteString(classSymbol(classRelType(edge)))
+	if lbl := arrowheadLabel(edge.DstArrowhead); lbl != "" {
 		fmt.Fprintf(&b, " %q", lbl)
 	}
 	b.WriteByte(' ')
-	b.WriteString(e.Dst.IDVal)
-	if lbl := strings.TrimSpace(e.Label.Value); lbl != "" {
+	b.WriteString(e.id(edge.Dst))
+	if lbl := strings.TrimSpace(edge.Label.Value); lbl != "" {
 		fmt.Fprintf(&b, " : %s", lbl)
 	}
 	return b.String()

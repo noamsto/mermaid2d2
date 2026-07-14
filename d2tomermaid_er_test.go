@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	mermaid "github.com/noamsto/mermaid-check"
 	"oss.terrastruct.com/d2/d2compiler"
 	"oss.terrastruct.com/d2/d2graph"
 )
@@ -53,6 +54,43 @@ func TestErDiagramFromD2Entities(t *testing.T) {
 				t.Errorf("erDiagramFromD2(%q)\n got:\n%s\nwant:\n%s", tt.in, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestErDiagramFromD2SanitizesIdentifiers(t *testing.T) {
+	graph := compileD2(t, "customer: {shape: sql_table}\n\"order item\": {shape: sql_table}\ncustomer -> \"order item\"\n")
+	got := erDiagramFromD2(graph)
+	if _, err := mermaid.Parse(got); err != nil {
+		t.Errorf("erDiagramFromD2 produced unparsable Mermaid: %v\n%s", err, got)
+	}
+}
+
+func TestErLeftRightSymbolCardinalities(t *testing.T) {
+	tests := []struct {
+		label     string
+		wantLeft  string
+		wantRight string
+	}{
+		{"0..1", "|o", "o|"},
+		{"1..N", "}|", "|{"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			if got := erLeftSymbol(tt.label); got != tt.wantLeft {
+				t.Errorf("erLeftSymbol(%q) = %q, want %q", tt.label, got, tt.wantLeft)
+			}
+			if got := erRightSymbol(tt.label); got != tt.wantRight {
+				t.Errorf("erRightSymbol(%q) = %q, want %q", tt.label, got, tt.wantRight)
+			}
+		})
+	}
+}
+
+func TestErKeysMultipleConstraints(t *testing.T) {
+	got := erKeys([]string{"primary_key", "foreign_key"})
+	want := "PK,FK"
+	if got != want {
+		t.Errorf("erKeys([primary_key, foreign_key]) = %q, want %q", got, want)
 	}
 }
 
