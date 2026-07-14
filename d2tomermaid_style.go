@@ -46,9 +46,10 @@ func (e *mermaidEmitter) writeStyling(b *strings.Builder, graph *d2graph.Graph) 
 }
 
 // d2StyleToMermaid inverts mermaidStyleToD2 (mermaidtod2.go): the same six
-// properties, in the same order, with the "px" suffix restored on numeric
-// ones. Colors need no quoting on the way out (Mermaid classDef values are
-// bare, unlike D2's leading-# comment ambiguity).
+// properties, in the same order, with the "px" suffix restored on the
+// numeric ones (stroke-dasharray excepted — it's conventionally unitless).
+// Colors need no quoting on the way out (Mermaid classDef values are bare,
+// unlike D2's leading-# comment ambiguity).
 func d2StyleToMermaid(s d2graph.Style) []string {
 	props := []struct {
 		field   *d2graph.Scalar
