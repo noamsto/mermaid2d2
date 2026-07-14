@@ -6,19 +6,84 @@ import (
 
 	"oss.terrastruct.com/d2/d2compiler"
 	"oss.terrastruct.com/d2/d2graph"
+	"oss.terrastruct.com/d2/d2target"
 )
 
-// D2ToMermaid parses D2 source and emits an equivalent Mermaid flowchart.
+// D2ToMermaid parses D2 source and emits the Mermaid diagram it maps to.
 //
-// Containers become subgraphs, connections become edges, and the board
-// direction sets the flowchart orientation. D2 features without a flowchart
-// equivalent (SQL tables, class shapes, grids, styling) are dropped.
+// The Mermaid diagram type is inferred from the shapes present: sql_table
+// shapes emit an erDiagram, class shapes emit a classDiagram, and anything
+// else emits a flowchart (containers become subgraphs, connections become
+// edges, classes:/class: styling becomes classDef/class, and the board
+// direction sets orientation). A graph that mixes sql_table or class shapes
+// with each other or with plain nodes/containers has no single Mermaid
+// diagram type and returns an error. D2 features with no Mermaid equivalent
+// in the chosen diagram type (grids, and — outside flowcharts — arrows,
+// styling, containers) are dropped.
 func D2ToMermaid(src string) (string, error) {
 	graph, _, err := d2compiler.Compile("", strings.NewReader(src), nil)
 	if err != nil {
 		return "", fmt.Errorf("mermaid2d2: parse d2: %w", err)
 	}
 
+	kind, err := detectMermaidKind(graph)
+	if err != nil {
+		return "", err
+	}
+	switch kind {
+	case kindER:
+		return erDiagramFromD2(graph), nil
+	case kindClass:
+		return classDiagramFromD2(graph), nil
+	default:
+		return flowchartFromD2(graph), nil
+	}
+}
+
+type mermaidKind int
+
+const (
+	kindFlowchart mermaidKind = iota
+	kindER
+	kindClass
+)
+
+// detectMermaidKind scans every object in the graph and decides which single
+// Mermaid diagram type it maps to. sql_table and class objects only ever
+// appear at the board root with no other shape alongside them — mirroring
+// exactly what erDiagramToD2/classDiagramToD2 produce on the Mermaid→D2 side —
+// so any other combination is rejected rather than guessed at.
+func detectMermaidKind(graph *d2graph.Graph) (mermaidKind, error) {
+	var hasTable, hasClass, hasOther bool
+	for _, obj := range graph.Objects {
+		switch strings.ToLower(obj.Shape.Value) {
+		case d2target.ShapeSQLTable:
+			hasTable = true
+		case d2target.ShapeClass:
+			hasClass = true
+		default:
+			hasOther = true
+		}
+	}
+	switch {
+	case hasTable && hasClass:
+		return 0, fmt.Errorf("mermaid2d2: cannot emit a single Mermaid diagram: graph mixes sql_table and class shapes")
+	case hasTable && hasOther:
+		return 0, fmt.Errorf("mermaid2d2: cannot emit erDiagram: graph mixes sql_table shapes with plain nodes or containers")
+	case hasClass && hasOther:
+		return 0, fmt.Errorf("mermaid2d2: cannot emit classDiagram: graph mixes class shapes with plain nodes or containers")
+	case hasTable:
+		return kindER, nil
+	case hasClass:
+		return kindClass, nil
+	default:
+		return kindFlowchart, nil
+	}
+}
+
+// flowchartFromD2 renders a D2 graph with no sql_table/class shapes as a
+// Mermaid flowchart.
+func flowchartFromD2(graph *d2graph.Graph) string {
 	e := &mermaidEmitter{ids: map[*d2graph.Object]string{}, used: map[string]bool{}}
 	var b strings.Builder
 	fmt.Fprintf(&b, "flowchart %s\n", mermaidDirection(graph.Root))
@@ -28,7 +93,8 @@ func D2ToMermaid(src string) (string, error) {
 	for _, edge := range graph.Edges {
 		e.writeEdge(&b, edge)
 	}
-	return b.String(), nil
+	e.writeStyling(&b, graph)
+	return b.String()
 }
 
 type mermaidEmitter struct {
@@ -131,4 +197,51 @@ func sanitizeID(absID string) string {
 		return "n" + id
 	}
 	return id
+}
+
+// erIDs assigns Mermaid-safe, all-uppercase entity/relationship identifiers
+// (erDiagram's grammar accepts only [A-Z_][A-Z0-9_-]*, stricter than
+// flowchart/classDiagram's case-insensitive word-character identifiers), with
+// collision suffixing if uppercasing merges two distinct sanitized ids.
+type erIDs struct {
+	ids  map[*d2graph.Object]string
+	used map[string]bool
+}
+
+func (e *erIDs) id(obj *d2graph.Object) string {
+	if id, ok := e.ids[obj]; ok {
+		return id
+	}
+	id := strings.ToUpper(sanitizeID(obj.AbsID()))
+	for e.used[id] {
+		id += "_"
+	}
+	e.used[id] = true
+	e.ids[obj] = id
+	return id
+}
+
+// arrowheadLabel returns the label carried by a connection's source/target
+// arrowhead attributes (D2's source-arrowhead/target-arrowhead), or "" if the
+// arrowhead has no label or is absent entirely.
+func arrowheadLabel(a *d2graph.Attributes) string {
+	if a == nil {
+		return ""
+	}
+	return strings.TrimSpace(a.Label.Value)
+}
+
+// arrowheadShape returns the D2 shape keyword set on a connection's
+// source/target arrowhead (e.g. "triangle", "diamond"), or "" if unset.
+func arrowheadShape(a *d2graph.Attributes) string {
+	if a == nil {
+		return ""
+	}
+	return a.Shape.Value
+}
+
+// arrowheadHollow reports whether an arrowhead is drawn unfilled
+// (style.filled: false — used for inheritance/aggregation's open shapes).
+func arrowheadHollow(a *d2graph.Attributes) bool {
+	return a != nil && a.Style.Filled != nil && a.Style.Filled.Value == "false"
 }
