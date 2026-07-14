@@ -93,6 +93,7 @@ func flowchartFromD2(graph *d2graph.Graph) string {
 	for _, edge := range graph.Edges {
 		e.writeEdge(&b, edge)
 	}
+	e.writeStyling(&b, graph)
 	return b.String()
 }
 
