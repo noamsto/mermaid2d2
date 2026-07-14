@@ -32,6 +32,21 @@ func TestClassDiagramFromD2Classes(t *testing.T) {
 			in:   "Dog: {shape: class}\n",
 			want: "classDiagram\n    class Dog\n",
 		},
+		{
+			name: "inheritance relationship",
+			in:   "Dog -> Animal: {target-arrowhead: {shape: triangle; style.filled: false}}\n",
+			want: "classDiagram\n    Dog --|> Animal\n",
+		},
+		{
+			name: "association with label",
+			in:   "A -> B: uses\n",
+			want: "classDiagram\n    A --> B : uses\n",
+		},
+		{
+			name: "composition with cardinalities",
+			in:   "Car -> Wheel: {source-arrowhead: {shape: diamond; label: 1}; target-arrowhead: {label: 4}}\n",
+			want: "classDiagram\n    Car \"1\" *-- \"4\" Wheel\n",
+		},
 	}
 
 	for _, tt := range tests {

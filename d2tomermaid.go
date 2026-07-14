@@ -142,3 +142,18 @@ func arrowheadLabel(a *d2graph.Attributes) string {
 	}
 	return strings.TrimSpace(a.Label.Value)
 }
+
+// arrowheadShape returns the D2 shape keyword set on a connection's
+// source/target arrowhead (e.g. "triangle", "diamond"), or "" if unset.
+func arrowheadShape(a *d2graph.Attributes) string {
+	if a == nil {
+		return ""
+	}
+	return a.Shape.Value
+}
+
+// arrowheadHollow reports whether an arrowhead is drawn unfilled
+// (style.filled: false — used for inheritance/aggregation's open shapes).
+func arrowheadHollow(a *d2graph.Attributes) bool {
+	return a != nil && a.Style.Filled != nil && a.Style.Filled.Value == "false"
+}

@@ -15,9 +15,73 @@ func classDiagramFromD2(graph *d2graph.Graph) string {
 	var b strings.Builder
 	b.WriteString("classDiagram\n")
 	for _, obj := range graph.Root.ChildrenArray {
-		classBlock(&b, obj.IDVal, obj.Class)
+		if obj.Class != nil {
+			classBlock(&b, obj.IDVal, obj.Class)
+		}
+	}
+	for _, e := range graph.Edges {
+		fmt.Fprintf(&b, "    %s\n", classRelationshipLine(e))
 	}
 	return b.String()
+}
+
+// classRelationshipLine renders a D2 connection between two class objects as
+// a Mermaid UML relationship: 'From ["fromLabel"] <symbol> ["toLabel"] To[: label]'.
+func classRelationshipLine(e *d2graph.Edge) string {
+	var b strings.Builder
+	b.WriteString(e.Src.IDVal)
+	b.WriteByte(' ')
+	if lbl := arrowheadLabel(e.SrcArrowhead); lbl != "" {
+		fmt.Fprintf(&b, "%q ", lbl)
+	}
+	b.WriteString(classSymbol(classRelType(e)))
+	if lbl := arrowheadLabel(e.DstArrowhead); lbl != "" {
+		fmt.Fprintf(&b, " %q", lbl)
+	}
+	b.WriteByte(' ')
+	b.WriteString(e.Dst.IDVal)
+	if lbl := strings.TrimSpace(e.Label.Value); lbl != "" {
+		fmt.Fprintf(&b, " : %s", lbl)
+	}
+	return b.String()
+}
+
+// classRelType inverts classRelAttrs: reads a connection's arrowhead
+// shape/hollowness and dash style back into the UML relation type it came
+// from. Anything matching none of the specific shapes is a plain association.
+func classRelType(e *d2graph.Edge) string {
+	dashed := e.Style.StrokeDash != nil
+	switch {
+	case arrowheadShape(e.DstArrowhead) == "triangle" && arrowheadHollow(e.DstArrowhead) && dashed:
+		return "realization"
+	case arrowheadShape(e.DstArrowhead) == "triangle" && arrowheadHollow(e.DstArrowhead):
+		return "inheritance"
+	case arrowheadShape(e.SrcArrowhead) == "diamond" && arrowheadHollow(e.SrcArrowhead):
+		return "aggregation"
+	case arrowheadShape(e.SrcArrowhead) == "diamond":
+		return "composition"
+	case dashed:
+		return "dependency"
+	default:
+		return "association"
+	}
+}
+
+func classSymbol(relType string) string {
+	switch relType {
+	case "inheritance":
+		return "--|>"
+	case "realization":
+		return "..|>"
+	case "composition":
+		return "*--"
+	case "aggregation":
+		return "o--"
+	case "dependency":
+		return "..>"
+	default:
+		return "-->"
+	}
 }
 
 func classBlock(b *strings.Builder, id string, c *d2target.Class) {
