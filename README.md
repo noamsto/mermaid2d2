@@ -25,7 +25,10 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 | Feature | | Maps to |
 |---|:--:|---|
 | nodes · containers · connections · direction | ✅ | `flowchart` |
-| `sql_table` · `class` · styling | 🚧 | [#28](https://github.com/noamsto/mermaid2d2/issues/28) |
+| `sql_table` | ✅ | `erDiagram` · keys · cardinalities |
+| `class` | ✅ | `classDiagram` · members · UML arrowheads |
+| `classes:`/`class:` styling | ✅ | flowchart `classDef`/`class` |
+| mixed `sql_table`/`class`/plain shapes | ❌ | no single Mermaid diagram type |
 | grids | ❌ | no Mermaid equivalent |
 
 ### Features
@@ -33,7 +36,7 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 | | | |
 |---|:--:|---|
 | Label quoting (special chars) | ✅ | auto-quoted |
-| Flowchart `classDef`/`class` colors | ✅ | → D2 `classes` |
+| Flowchart `classDef`/`class` colors | ✅ | ↔ D2 `classes` |
 | State / class diagram notes | 🚧 | [#27](https://github.com/noamsto/mermaid2d2/issues/27) |
 | Inline `style` · `:::class` | 🚧 | needs parser support in the fork |
 | Sequence note side · spans · mindmap icons | ❌ | no D2 counterpart |

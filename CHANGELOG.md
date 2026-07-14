@@ -10,7 +10,14 @@ upstream release and the feature surface stabilizes.
 
 ### D2 → Mermaid
 - Graph/flowchart diagrams: nodes, containers → `subgraph`s, connections, board
-  direction.
+  direction. `classes:`/`class:` styling → `classDef`/`class`.
+- `sql_table` shapes → `erDiagram` entities (typed columns, PK/FK/UK
+  constraints) and relationships (crow's-foot cardinality labels).
+- `class` shapes → `classDiagram` classes (typed members, visibility) and
+  relationships (UML arrowheads → inheritance/realization/composition/
+  aggregation/dependency/association).
+- A D2 graph mixing `sql_table`/`class` shapes with each other or with plain
+  nodes/containers has no single Mermaid diagram type and returns an error.
 
 ### Mermaid → D2
 - **flowchart** — nodes, `subgraph`s → containers (subgraph membership preserved
