@@ -28,6 +28,13 @@ upstream release and the feature surface stabilizes.
 - **erDiagram** — entities → `sql_table` shapes (typed columns, PK/FK/UK
   constraints), relationships → connections with crow's-foot cardinality labels.
 - **mindmap** — tree of nodes connected to their parents, with mapped shapes.
+- **C4** (`C4Context`/`C4Container`/`C4Component`/`C4Dynamic`/`C4Deployment`) —
+  elements (`Person`, `System`, `Container`, `Component`, `Node`) → D2 nodes
+  (`Person` → `person` shape, `Db` variants → `cylinder`, `Queue` variants →
+  `queue`, `_Ext` variants → a dashed border); boundaries → containers;
+  `Rel`/`BiRel`/`Rel_Back`/etc. → connections. D2 has no native C4 notation,
+  so this mapping is lossy: the diagram title, sprites, tags, links, and
+  `UpdateElementStyle`/`UpdateRelStyle` overrides are dropped.
 
 Labels containing D2 syntax characters are automatically quoted. Diagram types
 with no D2 equivalent return a clear unsupported-type error.
