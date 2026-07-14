@@ -20,8 +20,8 @@ import (
 // attributes as typed columns and relationships as connections; mindmaps map
 // onto a D2 tree of nodes connected to their parents. Diagram types with no D2
 // equivalent (gantt, pie, journey, ...) return an error rather than
-// being mangled. Sequence notes become D2 notes; state and class notes have no
-// D2 equivalent and are dropped.
+// being mangled. Sequence notes become D2 notes; state and class notes render
+// as a tooltip attribute on their target node.
 func MermaidToD2(src string) (string, error) {
 	diagram, err := mermaid.Parse(src)
 	if err != nil {

@@ -22,9 +22,10 @@ upstream release and the feature surface stabilizes.
   `opt`/`par`/`critical` blocks as labeled groups, and `Note`s as D2 notes.
 - **stateDiagram-v2** — states → nodes, composite states → containers,
   transitions → connections, `[*]` → sentinel start/end circles, choices →
-  diamonds.
+  diamonds, notes → `tooltip` on their target state.
 - **classDiagram** — classes → `sql_table`-style `class` shapes with typed
-  members and visibility; relationships → connections with UML arrowheads.
+  members and visibility; relationships → connections with UML arrowheads;
+  notes → `tooltip` on their target class.
 - **erDiagram** — entities → `sql_table` shapes (typed columns, PK/FK/UK
   constraints), relationships → connections with crow's-foot cardinality labels.
 - **mindmap** — tree of nodes connected to their parents, with mapped shapes.
