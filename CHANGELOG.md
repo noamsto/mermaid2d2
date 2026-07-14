@@ -32,7 +32,9 @@ upstream release and the feature surface stabilizes.
   diamonds, notes → `tooltip` on their target state.
 - **classDiagram** — classes → `sql_table`-style `class` shapes with typed
   members and visibility; relationships → connections with UML arrowheads;
-  notes → `tooltip` on their target class.
+  notes → `tooltip` on their target class, or a floating node when standalone
+  (via the `mermaid-check` v0.1.4 parser, which added support for notes with
+  no target class).
 - **erDiagram** — entities → `sql_table` shapes (typed columns, PK/FK/UK
   constraints), relationships → connections with crow's-foot cardinality labels.
 - **mindmap** — tree of nodes connected to their parents, with mapped shapes.

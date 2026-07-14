@@ -9,10 +9,12 @@ import (
 
 // classDiagramToD2 renders a Mermaid class diagram as a D2 script. Classes become
 // `shape: class` nodes; relationships become connections whose arrowheads encode
-// the UML relation type. Notes render as a tooltip attribute on their target
-// class; comments are dropped.
+// the UML relation type. Notes targeting a class render as a tooltip attribute on
+// that class; standalone notes (no target class) render as their own floating
+// node; comments are dropped.
 func classDiagramToD2(d *ast.ClassDiagram) string {
 	var b strings.Builder
+	noteCount := 0
 	for _, s := range d.Statements {
 		switch v := s.(type) {
 		case *ast.Class:
@@ -20,7 +22,7 @@ func classDiagramToD2(d *ast.ClassDiagram) string {
 		case *ast.Relationship:
 			classRelationship(&b, v)
 		case *ast.ClassNote:
-			classNote(&b, v)
+			classNote(&b, v, &noteCount)
 		}
 	}
 	return b.String()
@@ -39,7 +41,18 @@ func classNode(b *strings.Builder, c *ast.Class) {
 	b.WriteString("}\n")
 }
 
-func classNote(b *strings.Builder, n *ast.ClassNote) {
+// classNote renders a note targeting a class as a `.tooltip` attribute on that
+// class. A standalone note (ClassName == "", added in mermaid-check v0.1.4 for
+// the `note "text"` form with no target) has nowhere to attach a tooltip, so it
+// renders as its own floating node instead, numbered note_1, note_2, ... in
+// source order via noteCount (mirroring seqEmitter's note_%d numbering in
+// mermaidtod2.go).
+func classNote(b *strings.Builder, n *ast.ClassNote, noteCount *int) {
+	if n.ClassName == "" {
+		*noteCount++
+		fmt.Fprintf(b, "note_%d: %s\n", *noteCount, d2Label(n.Text))
+		return
+	}
 	fmt.Fprintf(b, "%s.tooltip: %s\n", n.ClassName, d2Label(n.Text))
 }
 

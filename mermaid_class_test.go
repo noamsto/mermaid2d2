@@ -66,6 +66,29 @@ func TestClassDiagramToD2(t *testing.T) {
 			want: "Dog: {shape: class}\n" +
 				"Dog.tooltip: \"50% done #tag\"\n",
 		},
+		{
+			name: "standalone note becomes a floating node",
+			cd:   parseClassDiagram(t, "classDiagram\n    note \"a floating note\""),
+			want: "note_1: a floating note\n",
+		},
+		{
+			name: "multiple standalone notes get unique ids",
+			cd: parseClassDiagram(t, "classDiagram\n"+
+				"    note \"first\"\n"+
+				"    note \"second\"\n"),
+			want: "note_1: first\n" +
+				"note_2: second\n",
+		},
+		{
+			name: "targeted note still renders as a tooltip alongside a standalone note",
+			cd: parseClassDiagram(t, "classDiagram\n"+
+				"    class Dog\n"+
+				"    note for Dog \"dog note\"\n"+
+				"    note \"floating note\"\n"),
+			want: "Dog: {shape: class}\n" +
+				"Dog.tooltip: dog note\n" +
+				"note_1: floating note\n",
+		},
 	}
 
 	for _, tt := range tests {
