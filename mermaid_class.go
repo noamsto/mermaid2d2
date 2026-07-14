@@ -9,7 +9,8 @@ import (
 
 // classDiagramToD2 renders a Mermaid class diagram as a D2 script. Classes become
 // `shape: class` nodes; relationships become connections whose arrowheads encode
-// the UML relation type. Notes and comments are dropped.
+// the UML relation type. Notes render as a tooltip attribute on their target
+// class; comments are dropped.
 func classDiagramToD2(d *ast.ClassDiagram) string {
 	var b strings.Builder
 	for _, s := range d.Statements {
@@ -18,6 +19,8 @@ func classDiagramToD2(d *ast.ClassDiagram) string {
 			classNode(&b, v)
 		case *ast.Relationship:
 			classRelationship(&b, v)
+		case *ast.ClassNote:
+			classNote(&b, v)
 		}
 	}
 	return b.String()
@@ -34,6 +37,10 @@ func classNode(b *strings.Builder, c *ast.Class) {
 		fmt.Fprintf(b, "  %s\n", classMember(&c.Members[i]))
 	}
 	b.WriteString("}\n")
+}
+
+func classNote(b *strings.Builder, n *ast.ClassNote) {
+	fmt.Fprintf(b, "%s.tooltip: %s\n", n.ClassName, d2Label(n.Text))
 }
 
 // classMember renders one field or method. The parser fills Name and Type from the

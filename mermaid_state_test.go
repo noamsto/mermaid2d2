@@ -56,6 +56,19 @@ func TestStateDiagramToD2(t *testing.T) {
 				"fork_state -> s1\n" +
 				"fork_state -> s2\n",
 		},
+		{
+			name: "note becomes a tooltip on its target state",
+			in:   "stateDiagram-v2\n    state \"Named\" as s1\n    s1 --> s2: go\n    note right of s1: hello",
+			want: "s1: Named\n" +
+				"s1 -> s2: go\n" +
+				"s1.tooltip: hello\n",
+		},
+		{
+			name: "note text needing d2 quoting",
+			in:   "stateDiagram-v2\n    state \"Named\" as s1\n    note right of s1: 50% done #tag",
+			want: "s1: Named\n" +
+				"s1.tooltip: \"50% done #tag\"\n",
+		},
 	}
 
 	for _, tt := range tests {
@@ -73,6 +86,7 @@ func TestStateDiagramToD2Composite(t *testing.T) {
 		"    state \"Big Room\" as First {\n"+
 		"        [*] --> s2\n"+
 		"        state \"Second\" as s2\n"+
+		"        note left of s2: inner note\n"+
 		"        s2 --> s3\n"+
 		"        s3 --> [*]\n"+
 		"    }\n"+
@@ -83,6 +97,7 @@ func TestStateDiagramToD2Composite(t *testing.T) {
 		"  start: {shape: circle}\n" +
 		"  start -> s2\n" +
 		"  s2: Second\n" +
+		"  s2.tooltip: inner note\n" +
 		"  s2 -> s3\n" +
 		"  end: {shape: circle}\n" +
 		"  s3 -> end\n" +

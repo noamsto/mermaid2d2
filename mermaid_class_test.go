@@ -54,6 +54,18 @@ func TestClassDiagramToD2(t *testing.T) {
 			cd:   parseClassDiagram(t, "classDiagram\n    Car \"1\" *-- \"4\" Wheel"),
 			want: "Car -> Wheel: {source-arrowhead: {shape: diamond; label: 1}; target-arrowhead: {label: 4}}\n",
 		},
+		{
+			name: "note becomes a tooltip on its target class",
+			cd:   parseClassDiagram(t, "classDiagram\n    class Dog\n    note for Dog \"some note\""),
+			want: "Dog: {shape: class}\n" +
+				"Dog.tooltip: some note\n",
+		},
+		{
+			name: "note text needing d2 quoting",
+			cd:   parseClassDiagram(t, "classDiagram\n    class Dog\n    note for Dog \"50% done #tag\""),
+			want: "Dog: {shape: class}\n" +
+				"Dog.tooltip: \"50% done #tag\"\n",
+		},
 	}
 
 	for _, tt := range tests {

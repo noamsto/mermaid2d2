@@ -14,8 +14,9 @@ import (
 // start/end markers, so Mermaid's [*] is rendered with sentinel circle nodes:
 // per scope, a single `start` node fans out to every start target and a single
 // `end` node collects every end source. Choice nodes become diamonds; fork and
-// join nodes become plain nodes (D2 has no bar shape). Notes and comments are
-// dropped, matching how the other converters treat features with no D2 analog.
+// join nodes become plain nodes (D2 has no bar shape). Notes render as a
+// tooltip attribute on their target state; comments are dropped, matching how
+// the other converters treat features with no D2 analog.
 func stateDiagramToD2(d *ast.StateDiagram) string {
 	var b strings.Builder
 	emitStateStmts(&b, d.Statements, 0)
@@ -70,6 +71,8 @@ func emitStateStmts(b *strings.Builder, stmts []ast.StateStmt, depth int) {
 			fmt.Fprintf(b, "%s%s\n", indent, v.ID)
 		case *ast.Join:
 			fmt.Fprintf(b, "%s%s\n", indent, v.ID)
+		case *ast.StateNote:
+			fmt.Fprintf(b, "%s%s.tooltip: %s\n", indent, v.StateID, d2Label(v.Text))
 		}
 	}
 }
