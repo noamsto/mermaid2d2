@@ -37,7 +37,7 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 |---|:--:|---|
 | Label quoting (special chars) | ✅ | auto-quoted |
 | Flowchart `classDef`/`class` colors | ✅ | ↔ D2 `classes` |
-| State / class diagram notes | 🚧 | [#27](https://github.com/noamsto/mermaid2d2/issues/27) |
+| State / class diagram notes | ✅ | `tooltip` on the target; standalone class notes as floating nodes |
 | Inline `style` · `:::class` | 🚧 | needs parser support in the fork |
 | Sequence note side · spans · mindmap icons | ❌ | no D2 counterpart |
 | C4 diagram title · sprites · tags · links · `UpdateElementStyle`/`UpdateRelStyle` | ❌ | no D2 counterpart; D2 has no native C4 notation |
