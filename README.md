@@ -44,59 +44,203 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 
 ## Examples
 
-Each pair below is a Mermaid source (left) and the D2 that `m2d2` produces from
-it (right), both rendered to SVG. Click any diagram to open it full size.
-Regenerate with [`docs/examples/generate.sh`](docs/examples/generate.sh).
+Each example is the Mermaid source — rendered inline by GitHub — followed by the
+D2 that `m2d2` produces from it, rendered to SVG. Click a diagram to open it
+full size. Regenerate the renders with
+[`docs/examples/generate.sh`](docs/examples/generate.sh).
 
 ### Flowchart
 
-<table>
-<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
-<tr>
-<td width="50%"><a href="docs/examples/flowchart.mermaid.svg"><img src="docs/examples/flowchart.mermaid.svg" alt="Mermaid flowchart" width="100%"></a></td>
-<td width="50%"><a href="docs/examples/flowchart.d2.svg"><img src="docs/examples/flowchart.d2.svg" alt="D2 flowchart" width="100%"></a></td>
-</tr>
-</table>
+```mermaid
+flowchart LR
+    Start[Start] --> Parse{Valid?}
+    Parse -->|yes| Build[Build graph]
+    Parse -->|no| Fail[Report error]
+    subgraph pipeline[Conversion pipeline]
+        Build --> Emit[Emit D2]
+    end
+    Emit --> Done[Done]
+    classDef error fill:#fdd,stroke:#c00,stroke-width:2px
+    class Fail error
+```
+
+<details>
+<summary><code>m2d2 -to d2</code> output</summary>
+
+```d2
+direction: right
+classes: {
+  error: {
+    style: {
+      fill: "#fdd"
+      stroke: "#c00"
+      stroke-width: 2
+    }
+  }
+}
+Parse: Valid? {shape: diamond}
+Build: Build graph
+Fail: Report error {class: error}
+pipeline: Conversion pipeline {
+  Emit: Emit D2
+}
+Start -> Parse
+Parse -> Build: yes
+Parse -> Fail: no
+Build -> pipeline.Emit
+pipeline.Emit -> Done
+```
+
+</details>
+
+<a href="docs/examples/flowchart.d2.svg"><img src="docs/examples/flowchart.d2.svg" alt="D2 flowchart" width="100%"></a>
 
 ### Sequence
 
-<table>
-<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
-<tr>
-<td width="50%"><a href="docs/examples/sequence.mermaid.svg"><img src="docs/examples/sequence.mermaid.svg" alt="Mermaid sequence diagram" width="100%"></a></td>
-<td width="50%"><a href="docs/examples/sequence.d2.svg"><img src="docs/examples/sequence.d2.svg" alt="D2 sequence diagram" width="100%"></a></td>
-</tr>
-</table>
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+    C->>S: GET /diagram
+    Note over S: cache miss
+    loop retry on failure
+        S->>S: render
+    end
+    alt success
+        S-->>C: 200 OK
+    else error
+        S-->>C: 500 Internal
+    end
+```
+
+<details>
+<summary><code>m2d2 -to d2</code> output</summary>
+
+```d2
+shape: sequence_diagram
+C: Client
+S: Server
+C -> S: GET /diagram
+S.note_1: cache miss
+loop_1: {
+  label: retry on failure
+  S -> S: render
+}
+alt_1: {
+  label: success
+  S -> C: 200 OK
+}
+alt_2: {
+  label: error
+  S -> C: 500 Internal
+}
+```
+
+</details>
+
+<a href="docs/examples/sequence.d2.svg"><img src="docs/examples/sequence.d2.svg" alt="D2 sequence diagram" width="100%"></a>
 
 ### Entity relationship
 
-<table>
-<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
-<tr>
-<td width="50%"><a href="docs/examples/er.mermaid.svg"><img src="docs/examples/er.mermaid.svg" alt="Mermaid ER diagram" width="100%"></a></td>
-<td width="50%"><a href="docs/examples/er.d2.svg"><img src="docs/examples/er.d2.svg" alt="D2 ER diagram" width="100%"></a></td>
-</tr>
-</table>
+```mermaid
+erDiagram
+    CUSTOMER {
+        int id PK
+        string name
+        string email UK
+    }
+    ORDER {
+        int id PK
+        int customer_id FK
+    }
+    CUSTOMER ||--o{ ORDER : places
+```
+
+<details>
+<summary><code>m2d2 -to d2</code> output</summary>
+
+```d2
+CUSTOMER: {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  name: string
+  email: string {constraint: unique}
+}
+ORDER: {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  customer_id: int {constraint: foreign_key}
+}
+CUSTOMER -> ORDER: places {source-arrowhead: {label: 1}; target-arrowhead: {label: 0..N}}
+```
+
+</details>
+
+<a href="docs/examples/er.d2.svg"><img src="docs/examples/er.d2.svg" alt="D2 ER diagram" width="100%"></a>
 
 ### Class
 
-<table>
-<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
-<tr>
-<td width="50%"><a href="docs/examples/class.mermaid.svg"><img src="docs/examples/class.mermaid.svg" alt="Mermaid class diagram" width="100%"></a></td>
-<td width="50%"><a href="docs/examples/class.d2.svg"><img src="docs/examples/class.d2.svg" alt="D2 class diagram" width="100%"></a></td>
-</tr>
-</table>
+```mermaid
+classDiagram
+    class Order {
+        +String id
+        +submit(String coupon) bool
+    }
+    Entity <|-- Order
+    Order *-- LineItem
+    Order --> Customer : placed by
+```
+
+<details>
+<summary><code>m2d2 -to d2</code> output</summary>
+
+```d2
+Order: {
+  shape: class
+  +id: String
+  +submit(String coupon): bool
+}
+Entity -> Order: {target-arrowhead: {shape: triangle; style.filled: false}}
+Order -> LineItem: {source-arrowhead: {shape: diamond}}
+Order -> Customer: placed by
+```
+
+</details>
+
+<a href="docs/examples/class.d2.svg"><img src="docs/examples/class.d2.svg" alt="D2 class diagram" width="100%"></a>
 
 ### State
 
-<table>
-<tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
-<tr>
-<td width="50%"><a href="docs/examples/state.mermaid.svg"><img src="docs/examples/state.mermaid.svg" alt="Mermaid state diagram" width="100%"></a></td>
-<td width="50%"><a href="docs/examples/state.d2.svg"><img src="docs/examples/state.d2.svg" alt="D2 state diagram" width="100%"></a></td>
-</tr>
-</table>
+```mermaid
+stateDiagram-v2
+    [*] --> Active
+    Active --> [*]
+    state Active {
+        [*] --> Idle
+        Idle --> Running: start
+        Running --> Idle: stop
+    }
+```
+
+<details>
+<summary><code>m2d2 -to d2</code> output</summary>
+
+```d2
+start: {shape: circle}
+start -> Active
+end: {shape: circle}
+Active -> end
+Active: {
+  start: {shape: circle}
+  start -> Idle
+  Idle -> Running: start
+  Running -> Idle: stop
+}
+```
+
+</details>
+
+<a href="docs/examples/state.d2.svg"><img src="docs/examples/state.d2.svg" alt="D2 state diagram" width="100%"></a>
 
 ## CLI
 
