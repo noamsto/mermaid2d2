@@ -32,6 +32,23 @@ func TestClassDiagramFromD2Classes(t *testing.T) {
 				"    }\n",
 		},
 		{
+			name: "static and abstract member classifiers",
+			in: "Widget: {\n" +
+				"  shape: class\n" +
+				"  \"+colour$\": String\n" +
+				"  \"+draw()*\"\n" +
+				"  \"+make()$\": Widget\n" +
+				"  \"#count$\": int\n" +
+				"}\n",
+			want: "classDiagram\n" +
+				"    class Widget {\n" +
+				"        +String colour$\n" +
+				"        #int count$\n" +
+				"        +draw()*\n" +
+				"        +make() Widget$\n" +
+				"    }\n",
+		},
+		{
 			name: "class with no members",
 			in:   "Dog: {shape: class}\n",
 			want: "classDiagram\n    class Dog\n",

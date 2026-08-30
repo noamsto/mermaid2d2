@@ -120,10 +120,23 @@ func classFieldLine(f d2target.ClassField) string {
 // literal "void" return — omit the return type in that case.
 func classMethodLine(m d2target.ClassMethod) string {
 	vis := classVisibilityPrefix(m.Visibility)
+	name, classifier := cutClassifier(m.Name)
 	if m.Return == "" || m.Return == "void" {
-		return vis + m.Name
+		return vis + name + classifier
 	}
-	return fmt.Sprintf("%s%s %s", vis, m.Name, m.Return)
+	return fmt.Sprintf("%s%s %s%s", vis, name, m.Return, classifier)
+}
+
+// cutClassifier peels a trailing member classifier off a name. Mermaid puts it
+// at the very end of the member, past the return type, so a method that has one
+// has to be reassembled rather than printed straight through.
+func cutClassifier(name string) (string, string) {
+	for _, c := range []string{"$", "*"} {
+		if rest, ok := strings.CutSuffix(name, c); ok {
+			return rest, c
+		}
+	}
+	return name, ""
 }
 
 func classVisibilityPrefix(v string) string {

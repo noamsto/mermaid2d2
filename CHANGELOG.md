@@ -3,6 +3,13 @@
 Pre-1.0: the output format is still settling, so 1.0.0 is deferred until the
 feature surface stabilizes.
 
+## Unreleased
+
+- classDiagram static (`$`) and abstract (`*`) member classifiers survive both
+  directions. D2 has no notion of either, so they ride along in the member
+  name; `d2compiler` drops a member whose key ends in a classifier, so such a
+  key is quoted.
+
 ## v0.3.1
 
 - `m2d2 -version` prints the version. Release builds stamp it in; a
