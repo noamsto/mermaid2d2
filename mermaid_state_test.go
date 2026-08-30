@@ -25,16 +25,16 @@ func TestStateDiagramToD2(t *testing.T) {
 		{
 			name: "start and end sentinels",
 			in:   "stateDiagram-v2\n    [*] --> A\n    A --> [*]",
-			want: "start: {shape: circle}\n" +
+			want: "start: \"\" {shape: circle; width: 20; height: 20}\n" +
 				"start -> A\n" +
-				"end: {shape: circle}\n" +
+				"end: \"\" {shape: circle; style.double-border: true; width: 24; height: 24}\n" +
 				"A -> end\n",
 		},
 		{
 			name: "multiple ends share one sentinel",
 			in:   "stateDiagram-v2\n    A --> B\n    B --> [*]\n    A --> [*]",
 			want: "A -> B\n" +
-				"end: {shape: circle}\n" +
+				"end: \"\" {shape: circle; style.double-border: true; width: 24; height: 24}\n" +
 				"B -> end\n" +
 				"A -> end\n",
 		},
@@ -42,7 +42,7 @@ func TestStateDiagramToD2(t *testing.T) {
 			name: "choice node becomes diamond",
 			in:   "stateDiagram-v2\n    state if_state <<choice>>\n    [*] --> if_state\n    if_state --> A: yes\n    if_state --> B: no",
 			want: "if_state: {shape: diamond}\n" +
-				"start: {shape: circle}\n" +
+				"start: \"\" {shape: circle; width: 20; height: 20}\n" +
 				"start -> if_state\n" +
 				"if_state -> A: yes\n" +
 				"if_state -> B: no\n",
@@ -51,7 +51,7 @@ func TestStateDiagramToD2(t *testing.T) {
 			name: "fork fans out",
 			in:   "stateDiagram-v2\n    state fork_state <<fork>>\n    [*] --> fork_state\n    fork_state --> s1\n    fork_state --> s2",
 			want: "fork_state\n" +
-				"start: {shape: circle}\n" +
+				"start: \"\" {shape: circle; width: 20; height: 20}\n" +
 				"start -> fork_state\n" +
 				"fork_state -> s1\n" +
 				"fork_state -> s2\n",
@@ -91,18 +91,18 @@ func TestStateDiagramToD2Composite(t *testing.T) {
 		"        s3 --> [*]\n"+
 		"    }\n"+
 		"    First --> [*]")
-	want := "start: {shape: circle}\n" +
+	want := "start: \"\" {shape: circle; width: 20; height: 20}\n" +
 		"start -> First\n" +
 		"First: Big Room {\n" +
-		"  start: {shape: circle}\n" +
+		"  start: \"\" {shape: circle; width: 20; height: 20}\n" +
 		"  start -> s2\n" +
 		"  s2: Second\n" +
 		"  s2.tooltip: inner note\n" +
 		"  s2 -> s3\n" +
-		"  end: {shape: circle}\n" +
+		"  end: \"\" {shape: circle; style.double-border: true; width: 24; height: 24}\n" +
 		"  s3 -> end\n" +
 		"}\n" +
-		"end: {shape: circle}\n" +
+		"end: \"\" {shape: circle; style.double-border: true; width: 24; height: 24}\n" +
 		"First -> end\n"
 	assertStateConvertsTo(t, sd, want)
 }

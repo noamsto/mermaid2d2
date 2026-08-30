@@ -226,12 +226,12 @@ stateDiagram-v2
 <summary><code>m2d2 -to d2</code> output</summary>
 
 ```d2
-start: {shape: circle}
+start: "" {shape: circle; width: 20; height: 20}
 start -> Active
-end: {shape: circle}
+end: "" {shape: circle; style.double-border: true; width: 24; height: 24}
 Active -> end
 Active: {
-  start: {shape: circle}
+  start: "" {shape: circle; width: 20; height: 20}
   start -> Idle
   Idle -> Running: start
   Running -> Idle: stop
