@@ -3,10 +3,10 @@
 ## v0.2.0
 
 Bidirectional conversion between D2 and Mermaid as a Go library and the `m2d2`
-CLI. Pre-1.0: the parser dependency is pinned to a fork of `sammcj/mermaid-check`
-(see [#2](https://github.com/noamsto/mermaid2d2/issues/2)) and the output format
-is still settling, so 1.0.0 is deferred until that fork is dropped for a tagged
-upstream release and the feature surface stabilizes.
+CLI. Pre-1.0: the parser dependency is a fork of `sammcj/mermaid-check`
+(see [#46](https://github.com/noamsto/mermaid2d2/issues/46)) and the output
+format is still settling, so 1.0.0 is deferred until that fork is dropped for a
+tagged upstream release and the feature surface stabilizes.
 
 ### D2 → Mermaid
 - Graph/flowchart diagrams: nodes, containers → `subgraph`s, connections, board
