@@ -35,6 +35,23 @@ func TestClassDiagramToD2(t *testing.T) {
 				"}\n",
 		},
 		{
+			name: "static and abstract member classifiers",
+			cd: parseClassDiagram(t, "classDiagram\n"+
+				"    class Widget {\n"+
+				"        +String colour$\n"+
+				"        +draw()*\n"+
+				"        +make() Widget$\n"+
+				"        #int count$\n"+
+				"    }\n"),
+			want: "Widget: {\n" +
+				"  shape: class\n" +
+				"  \"+colour$\": String\n" +
+				"  \"+draw()*\"\n" +
+				"  \"+make()$\": Widget\n" +
+				"  \"#count$\": int\n" +
+				"}\n",
+		},
+		{
 			name: "class with no members",
 			cd:   parseClassDiagram(t, "classDiagram\n    class Dog"),
 			want: "Dog: {shape: class}\n",

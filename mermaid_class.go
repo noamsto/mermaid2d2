@@ -74,18 +74,35 @@ func classNote(b *strings.Builder, n *ast.ClassNote, noteCount *int, classNames 
 // classMember renders one field or method. The parser fills Name and Type from the
 // first two tokens as written, so they are passed through positionally.
 func classMember(m *ast.ClassMember) string {
-	vis := classVisibility(m.Visibility)
+	name := m.Name
 	if m.IsMethod {
-		sig := fmt.Sprintf("%s%s(%s)", vis, m.Name, strings.Join(m.Parameters, ", "))
-		if m.Type == "" {
-			return sig
-		}
-		return fmt.Sprintf("%s: %s", sig, m.Type)
+		name = fmt.Sprintf("%s(%s)", name, strings.Join(m.Parameters, ", "))
 	}
+
+	// d2compiler silently drops a member whose key ends in a classifier, so a
+	// classified key is quoted; # needs no escaping inside the quotes.
+	key := classVisibility(m.Visibility) + name
+	if c := classClassifier(m); c != "" {
+		key = `"` + m.Visibility + name + c + `"`
+	}
+
 	if m.Type == "" {
-		return vis + m.Name
+		return key
 	}
-	return fmt.Sprintf("%s%s: %s", vis, m.Name, m.Type)
+	return fmt.Sprintf("%s: %s", key, m.Type)
+}
+
+// classClassifier renders Mermaid's trailing member classifier: $ for static,
+// * for abstract. Mermaid allows at most one per member.
+func classClassifier(m *ast.ClassMember) string {
+	switch {
+	case m.IsAbstract:
+		return "*"
+	case m.IsStatic:
+		return "$"
+	default:
+		return ""
+	}
 }
 
 // classVisibility escapes protected (#) so D2 does not read it as a comment. D2 has
