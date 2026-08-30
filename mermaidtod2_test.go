@@ -278,6 +278,58 @@ func TestMermaidToD2FlowchartStyling(t *testing.T) {
 				"B: End\n" +
 				"A -> B\n",
 		},
+		{
+			name: "style statement applies properties to its node",
+			in: "flowchart TD\n" +
+				"    A[Start] --> B[End]\n" +
+				"    style A fill:#f9f,stroke:#333,stroke-width:2px",
+			want: "A: Start {style.fill: \"#f9f\"; style.stroke: \"#333\"; style.stroke-width: 2}\n" +
+				"B: End\n" +
+				"A -> B\n",
+		},
+		{
+			name: "inline :::class shorthand applies its class",
+			in: "flowchart TD\n" +
+				"    A[Start]:::hot --> B[End]\n" +
+				"    classDef hot fill:#f96",
+			want: "classes: {\n" +
+				"  hot: {\n" +
+				"    style: {\n" +
+				"      fill: \"#f96\"\n" +
+				"    }\n" +
+				"  }\n" +
+				"}\n" +
+				"A: Start {class: hot}\n" +
+				"B: End\n" +
+				"A -> B\n",
+		},
+		{
+			name: "style and class on the same node",
+			in: "flowchart TD\n" +
+				"    A[Start] --> B[End]\n" +
+				"    classDef hot fill:#f96\n" +
+				"    class A hot\n" +
+				"    style A stroke:#333",
+			want: "classes: {\n" +
+				"  hot: {\n" +
+				"    style: {\n" +
+				"      fill: \"#f96\"\n" +
+				"    }\n" +
+				"  }\n" +
+				"}\n" +
+				"A: Start {class: hot; style.stroke: \"#333\"}\n" +
+				"B: End\n" +
+				"A -> B\n",
+		},
+		{
+			name: "style naming no known node is dropped",
+			in: "flowchart TD\n" +
+				"    A[Start] --> B[End]\n" +
+				"    style nosuch fill:#f9f",
+			want: "A: Start\n" +
+				"B: End\n" +
+				"A -> B\n",
+		},
 	}
 
 	for _, tt := range tests {
