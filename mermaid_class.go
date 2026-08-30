@@ -117,10 +117,11 @@ func classVisibility(v string) string {
 }
 
 // classRelOp matches the UML relation operators, longest first so "<|--" wins
-// over "<--".
-var classRelOp = regexp.MustCompile(`<\|--|<\|\.\.|--\|>|\.\.\|>|\*--|--\*|o--|--o|<--|-->|<\.\.|\.\.>`)
+// over "<--" and "-->" over "--".
+var classRelOp = regexp.MustCompile(`<\|--|<\|\.\.|--\|>|\.\.\|>|\*--|--\*|o--|--o|<-->|<--|-->|<\.\.|\.\.>|--|\.\.`)
 
-// markerSide reports which end of a relationship carries the UML marker.
+// markerSide reports which end of a relationship carries the UML marker:
+// "source", "target", "both", or "none" for an undirected line.
 //
 // The AST records the two classes in written order plus a relation type, but not
 // which side the marker glyph was on — and "Entity <|-- Order" and
@@ -131,7 +132,12 @@ func markerSide(srcLines []string, pos ast.Position) string {
 	if pos.Line < 1 || pos.Line > len(srcLines) {
 		return "target"
 	}
-	switch op := classRelOp.FindString(srcLines[pos.Line-1]); {
+	op := classRelOp.FindString(srcLines[pos.Line-1])
+	switch {
+	case op == "--" || op == "..":
+		return "none"
+	case op == "<-->":
+		return "both"
 	case strings.HasPrefix(op, "<"), strings.HasPrefix(op, "*"), strings.HasPrefix(op, "o"):
 		return "source"
 	default:
@@ -140,12 +146,8 @@ func markerSide(srcLines []string, pos ast.Position) string {
 }
 
 func classRelationship(b *strings.Builder, r *ast.Relationship, side string) {
-	arrow := "->"
-	if side == "source" {
-		arrow = "<-"
-	}
+	arrow, attrs := classRelConn(r, side)
 	fmt.Fprintf(b, "%s %s %s", r.From, arrow, r.To)
-	attrs := classRelAttrs(r, side)
 	switch {
 	case r.Label != "" && attrs != "":
 		fmt.Fprintf(b, ": %s {%s}", d2Label(r.Label), attrs)
@@ -157,16 +159,20 @@ func classRelationship(b *strings.Builder, r *ast.Relationship, side string) {
 	b.WriteByte('\n')
 }
 
-// classRelAttrs builds the connection attribute block mapping the UML relation type
-// to D2 arrowhead shapes, plus any end cardinalities as arrowhead labels. side is
-// the connection end carrying the UML marker; D2 only draws an arrowhead on the
-// end the arrow points at, which is why classRelationship flips the arrow rather
-// than always writing "->".
+// classRelConn maps a UML relation to a D2 connection: the operator, plus the
+// arrowhead attributes carrying the marker shape and any end cardinalities.
 //
-// Fill is always explicit: D2 defaults a triangle arrowhead to filled and a
+// The written order is always kept. Mermaid ranks the class written first above
+// the one written second, whichever end the marker glyph is on, and D2 ranks a
+// connection's source above its target — so a marker on the source end is drawn
+// by making the connection bidirectional and suppressing the far end with
+// "shape: none". Writing "<-" instead would put the marker in the right place
+// but invert the class hierarchy.
+//
+// Arrowhead fill is always explicit: D2 defaults a triangle to filled and a
 // diamond to hollow, so composition and aggregation would otherwise render
 // identically.
-func classRelAttrs(r *ast.Relationship, side string) string {
+func classRelConn(r *ast.Relationship, side string) (arrow, attrs string) {
 	var shape string
 	var filled, dashed bool
 	switch r.Type {
@@ -182,28 +188,50 @@ func classRelAttrs(r *ast.Relationship, side string) string {
 		dashed = true
 	}
 
-	srcShape, tgtShape := "", shape
-	if side == "source" {
-		srcShape, tgtShape = shape, ""
+	srcLabel := endLabel(r.FromCardinality, r.FromMultiplicity)
+	tgtLabel := endLabel(r.ToCardinality, r.ToMultiplicity)
+
+	var srcShape, tgtShape string
+	switch side {
+	case "none":
+		arrow = "--"
+	case "both":
+		arrow = "<->"
+	case "source":
+		// D2 draws an arrowhead only on an end its arrow points at, so the
+		// connection has to run both ways for a marker to appear at the source.
+		arrow = "<->"
+		srcShape, tgtShape = shape, "none"
+		if srcShape == "" {
+			srcShape = "arrow"
+		}
+	default:
+		arrow = "->"
+		tgtShape = shape
 	}
 
-	var attrs []string
-	if a := arrowheadAttr("source", srcShape, filled, endLabel(r.FromCardinality, r.FromMultiplicity)); a != "" {
-		attrs = append(attrs, a)
+	var parts []string
+	if a := arrowheadAttr("source", srcShape, filled, srcLabel); a != "" {
+		parts = append(parts, a)
 	}
-	if a := arrowheadAttr("target", tgtShape, filled, endLabel(r.ToCardinality, r.ToMultiplicity)); a != "" {
-		attrs = append(attrs, a)
+	if a := arrowheadAttr("target", tgtShape, filled, tgtLabel); a != "" {
+		parts = append(parts, a)
 	}
 	if dashed {
-		attrs = append(attrs, "style.stroke-dash: 3")
+		parts = append(parts, "style.stroke-dash: 3")
 	}
-	return strings.Join(attrs, "; ")
+	return arrow, strings.Join(parts, "; ")
 }
 
+// arrowheadAttr renders one end's arrowhead block. filled is emitted only for the
+// shapes whose D2 default differs from the UML notation.
 func arrowheadAttr(end, shape string, filled bool, label string) string {
 	var parts []string
 	if shape != "" {
-		parts = append(parts, "shape: "+shape, fmt.Sprintf("style.filled: %t", filled))
+		parts = append(parts, "shape: "+shape)
+		if shape == "triangle" || shape == "diamond" {
+			parts = append(parts, fmt.Sprintf("style.filled: %t", filled))
+		}
 	}
 	if label != "" {
 		parts = append(parts, "label: "+label)
