@@ -24,16 +24,16 @@ input it already accepted.
     glyph was on, so the operator is now recovered from the source line.
   - D2 draws an arrowhead only on the end its arrow points at, so a
     `source-arrowhead` on a `->` connection was silently ignored — every
-    `*--` and `o--` lost its diamond. The arrow is flipped to `<-` when the
-    marker belongs at the source.
+    `*--` and `o--` lost its diamond. A marker on the source end is now drawn
+    with a bidirectional connection whose far end is suppressed by
+    `shape: none`, which keeps the written order — and with it Mermaid's
+    ranking of the first class above the second, so a superclass still sits
+    above its subclass.
   - D2 defaults a triangle arrowhead to filled and a diamond to hollow, so
     composition carried aggregation's notation. Fill is now always explicit.
-  - Left-pointing associations (`A <-- B`) pointed the wrong way; the same
-    change reverses them.
-
-  Because D2 lays out along arrow direction, a superclass now sits below its
-  subclass where Mermaid draws it above. Correct arrowheads cost the vertical
-  order.
+  - Undirected relations (`A -- B`, `A .. B`) emitted `->`, inventing an
+    arrowhead, and `A <--> B` lost one of its two. Left-pointing associations
+    (`A <-- B`) pointed the wrong way.
 - **stateDiagram-v2** — `[*]` was a full-size circle with `start` or `end`
   written inside it. It is now a small unlabelled dot, and the terminal state a
   ring, as UML draws them. Neither carries an explicit colour, so
@@ -58,6 +58,9 @@ input it already accepted.
   and renders with `d2 --dark-theme` so the SVGs follow the reader's theme.
 - `TestREADMEExamplesInSync` fails when a conversion change lands without a
   `generate.sh` run, since the README quotes generated D2 verbatim.
+- Examples render with `--layout=elk`, which places a composite state's terminal
+  node below its container instead of off to one side. Layout is the renderer's
+  choice, not something the library emits.
 
 ## v0.4.0
 
