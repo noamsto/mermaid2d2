@@ -110,14 +110,18 @@ type flowEmitter struct {
 	classOrder  []string            // classDef names in first-seen order
 }
 
-// note records a node's container on first mention; Mermaid binds a node to the
-// subgraph where it first appears, and later references do not move it.
+// note records a node's container. Mermaid binds a node to the subgraph whose
+// body mentions it, so a mention inside one overrides an earlier root-level
+// mention; between two subgraphs the first keeps the node.
 func (e *flowEmitter) note(id, path string) {
-	if _, ok := e.containerOf[id]; ok {
+	prev, seen := e.containerOf[id]
+	if seen && (prev != "" || path == "") {
 		return
 	}
+	if !seen {
+		e.nodeOrder = append(e.nodeOrder, id)
+	}
 	e.containerOf[id] = path
-	e.nodeOrder = append(e.nodeOrder, id)
 }
 
 func (e *flowEmitter) walk(stmts []ast.Statement, c *d2Container) {

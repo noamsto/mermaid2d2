@@ -79,15 +79,15 @@ classes: {
   }
 }
 Parse: Valid? {shape: diamond}
-Build: Build graph
 Fail: Report error {class: error}
 pipeline: Conversion pipeline {
+  Build: Build graph
   Emit: Emit D2
+  Build -> Emit
 }
 Start -> Parse
-Parse -> Build: yes
+Parse -> pipeline.Build: yes
 Parse -> Fail: no
-Build -> pipeline.Emit
 pipeline.Emit -> Done
 ```
 

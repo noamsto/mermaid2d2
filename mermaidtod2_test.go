@@ -51,6 +51,24 @@ func TestMermaidToD2Flowchart(t *testing.T) {
 				"one.a2 -> b\n",
 		},
 		{
+			name: "node mentioned outside then inside binds to the subgraph",
+			in:   "flowchart TB\n    a --> b\n    subgraph grp[Group]\n        b --> c\n    end",
+			want: "grp: Group {\n" +
+				"  b -> c\n" +
+				"}\n" +
+				"a -> grp.b\n",
+		},
+		{
+			name: "first subgraph wins when a node is mentioned in two",
+			in:   "flowchart TB\n    subgraph one[One]\n        x --> y\n    end\n    subgraph two[Two]\n        y --> z\n    end",
+			want: "one: One {\n" +
+				"  x -> y\n" +
+				"}\n" +
+				"two: Two {\n" +
+				"}\n" +
+				"one.y -> two.z\n",
+		},
+		{
 			name: "labeled node inside subgraph",
 			in:   "flowchart TD\n    subgraph grp[My Group]\n        x[Node X] --> y\n    end",
 			want: "grp: My Group {\n" +
