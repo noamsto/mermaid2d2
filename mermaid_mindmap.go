@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/noamsto/mermaid-check/ast"
+	"github.com/sammcj/mermaid-check/ast"
 )
 
 // mindmapToD2 renders a Mermaid mindmap as a D2 tree. Mindmap nodes have no ids

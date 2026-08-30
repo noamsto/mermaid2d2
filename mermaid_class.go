@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/noamsto/mermaid-check/ast"
+	"github.com/sammcj/mermaid-check/ast"
 )
 
 // classDiagramToD2 renders a Mermaid class diagram as a D2 script. Classes become
