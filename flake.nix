@@ -28,18 +28,21 @@
         config,
         ...
       }: {
-        packages.default = pkgs.buildGoModule {
-          pname = "m2d2";
+        packages.default = let
           version = "0.3.0";
-          src = ./.;
-          vendorHash = "sha256-WxNa6K3HQRRgRqIyF6s99zVnP6ambwTJxeVdnF5Pw1s=";
-          subPackages = ["cmd/m2d2"];
-          ldflags = ["-s" "-w"];
-          meta = {
-            description = "Bidirectional converter between Mermaid and D2 diagram syntax";
-            mainProgram = "m2d2";
+        in
+          pkgs.buildGoModule {
+            pname = "m2d2";
+            inherit version;
+            src = ./.;
+            vendorHash = "sha256-WxNa6K3HQRRgRqIyF6s99zVnP6ambwTJxeVdnF5Pw1s=";
+            subPackages = ["cmd/m2d2"];
+            ldflags = ["-s" "-w" "-X main.version=${version}"];
+            meta = {
+              description = "Bidirectional converter between Mermaid and D2 diagram syntax";
+              mainProgram = "m2d2";
+            };
           };
-        };
 
         treefmt = {
           projectRootFile = "flake.nix";
