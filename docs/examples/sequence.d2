@@ -8,10 +8,13 @@ loop_1: {
   S -> S: render
 }
 alt_1: {
-  label: success
-  S -> C: 200 OK
-}
-alt_2: {
-  label: error
-  S -> C: 500 Internal
+  label: alt
+  case_1: {
+    label: success
+    S -> C: 200 OK
+  }
+  case_2: {
+    label: error
+    S -> C: 500 Internal
+  }
 }

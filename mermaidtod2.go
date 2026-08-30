@@ -474,18 +474,27 @@ func (e *seqEmitter) emit(b *strings.Builder, stmts []ast.SeqStmt, depth int) {
 		case *ast.Break:
 			e.group(b, depth, "break", v.Label, v.Statements)
 		case *ast.Alt:
-			for _, c := range v.Conditions {
-				e.group(b, depth, "alt", c.Label, c.Statements)
-			}
+			e.branches(b, depth, "alt", func(d int) {
+				for i, c := range v.Conditions {
+					e.branch(b, d, i, c.Label, c.Statements)
+				}
+			})
 		case *ast.Par:
-			for _, br := range v.Branches {
-				e.group(b, depth, "par", br.Label, br.Statements)
-			}
+			e.branches(b, depth, "par", func(d int) {
+				for i, br := range v.Branches {
+					e.branch(b, d, i, br.Label, br.Statements)
+				}
+			})
 		case *ast.Critical:
-			e.group(b, depth, "critical", v.Label, v.Statements)
-			for _, o := range v.Options {
-				e.group(b, depth, "option", o.Label, o.Statements)
-			}
+			e.counts["critical"]++
+			e.block(b, depth, fmt.Sprintf("critical_%d", e.counts["critical"]), v.Label, func(d int) {
+				e.emit(b, v.Statements, d)
+				for i, o := range v.Options {
+					e.block(b, d, fmt.Sprintf("option_%d", i+1), fallbackLabel(o.Label, "option"), func(d int) {
+						e.emit(b, o.Statements, d)
+					})
+				}
+			})
 		}
 	}
 }
@@ -493,13 +502,40 @@ func (e *seqEmitter) emit(b *strings.Builder, stmts []ast.SeqStmt, depth int) {
 // group emits one block as a labeled D2 group. label falls back to the block
 // kind when the Mermaid block has no description.
 func (e *seqEmitter) group(b *strings.Builder, depth int, kind, label string, stmts []ast.SeqStmt) {
-	if strings.TrimSpace(label) == "" {
-		label = kind
-	}
 	e.counts[kind]++
+	e.block(b, depth, fmt.Sprintf("%s_%d", kind, e.counts[kind]), fallbackLabel(label, kind), func(d int) {
+		e.emit(b, stmts, d)
+	})
+}
+
+// branches emits a multi-branch block (alt/else, par/and) as one outer group,
+// so the frame tying the branches together survives the conversion; fn fills it
+// with one branch child per Mermaid branch.
+func (e *seqEmitter) branches(b *strings.Builder, depth int, kind string, fn func(depth int)) {
+	e.counts[kind]++
+	e.block(b, depth, fmt.Sprintf("%s_%d", kind, e.counts[kind]), kind, fn)
+}
+
+// branch emits one branch of a multi-branch block. Keys are scoped to the
+// parent group, so they restart at 1 in every block.
+func (e *seqEmitter) branch(b *strings.Builder, depth, i int, label string, stmts []ast.SeqStmt) {
+	e.block(b, depth, fmt.Sprintf("case_%d", i+1), fallbackLabel(label, "case"), func(d int) {
+		e.emit(b, stmts, d)
+	})
+}
+
+// block writes a labeled D2 group whose body is emitted by fn at the next depth.
+func (e *seqEmitter) block(b *strings.Builder, depth int, key, label string, fn func(depth int)) {
 	indent := strings.Repeat("  ", depth)
-	fmt.Fprintf(b, "%s%s_%d: {\n", indent, kind, e.counts[kind])
+	fmt.Fprintf(b, "%s%s: {\n", indent, key)
 	fmt.Fprintf(b, "%s  label: %s\n", indent, d2Label(label))
-	e.emit(b, stmts, depth+1)
+	fn(depth + 1)
 	fmt.Fprintf(b, "%s}\n", indent)
+}
+
+func fallbackLabel(label, kind string) string {
+	if strings.TrimSpace(label) == "" {
+		return kind
+	}
+	return label
 }

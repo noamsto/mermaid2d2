@@ -188,12 +188,31 @@ func TestMermaidToD2Sequence(t *testing.T) {
 				"  A -> B: poll\n" +
 				"}\n" +
 				"alt_1: {\n" +
-				"  label: success\n" +
-				"  B -> A: 200\n" +
-				"}\n" +
-				"alt_2: {\n" +
-				"  label: failure\n" +
-				"  B -> A: 500\n" +
+				"  label: alt\n" +
+				"  case_1: {\n" +
+				"    label: success\n" +
+				"    B -> A: 200\n" +
+				"  }\n" +
+				"  case_2: {\n" +
+				"    label: failure\n" +
+				"    B -> A: 500\n" +
+				"  }\n" +
+				"}\n",
+		},
+		{
+			name: "par branches nest inside one group",
+			in:   "sequenceDiagram\n    par fetch\n        A->>B: one\n    and cache\n        A->>C: two\n    end",
+			want: "shape: sequence_diagram\n" +
+				"par_1: {\n" +
+				"  label: par\n" +
+				"  case_1: {\n" +
+				"    label: fetch\n" +
+				"    A -> B: one\n" +
+				"  }\n" +
+				"  case_2: {\n" +
+				"    label: cache\n" +
+				"    A -> C: two\n" +
+				"  }\n" +
 				"}\n",
 		},
 		{
