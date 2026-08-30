@@ -70,6 +70,7 @@ func flowchartToD2(fc *ast.Flowchart) string {
 		labelOf:     map[string]string{},
 		shapeOf:     map[string]string{},
 		classOf:     map[string][]string{},
+		styleOf:     map[string][]string{},
 		byPath:      map[string]*d2Container{},
 		usedSlugs:   map[string]bool{},
 		classStyles: map[string][]string{},
@@ -100,6 +101,7 @@ type flowEmitter struct {
 	labelOf     map[string]string   // node id -> label
 	shapeOf     map[string]string   // node id -> D2 shape keyword (non-default shapes only)
 	classOf     map[string][]string // node id -> applied class names
+	styleOf     map[string][]string // node id -> D2 style lines from a `style` statement
 	nodeOrder   []string            // node ids in first-seen order
 	byPath      map[string]*d2Container
 	usedSlugs   map[string]bool
@@ -146,6 +148,12 @@ func (e *flowEmitter) walk(stmts []ast.Statement, c *d2Container) {
 				}
 				e.classStyles[v.Name] = lines
 			}
+		case *ast.Style:
+			// Deliberately not noted as a node: a `style` may name an edge, and
+			// noting an unknown target would invent a node that was never drawn.
+			if lines := mermaidStyleToD2(v.Styles); len(lines) > 0 {
+				e.styleOf[v.Target] = lines
+			}
 		case *ast.ClassAssignment:
 			for _, id := range v.NodeIDs {
 				e.note(id, c.path)
@@ -190,6 +198,9 @@ func (e *flowEmitter) emit(b *strings.Builder, c *d2Container, depth int) {
 		}
 		if class := e.nodeClass(id); class != "" {
 			attrs = append(attrs, "class: "+class)
+		}
+		for _, line := range e.styleOf[id] {
+			attrs = append(attrs, "style."+line)
 		}
 		switch {
 		case hasLbl && len(attrs) > 0:

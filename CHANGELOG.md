@@ -3,6 +3,19 @@
 Pre-1.0: the output format is still settling, so 1.0.0 is deferred until the
 feature surface stabilizes.
 
+## Unreleased
+
+- Mermaid `style A fill:#f9f` becomes `style.*` attributes on the D2 node. A
+  `style` naming something that is not a drawn node is dropped rather than
+  inventing one, since Mermaid also allows it to name an edge.
+- Mermaid's `A:::hot` shorthand now converts. It was silently dropping the
+  whole statement, edge included — a `mermaid-check` parser bug, fixed
+  upstream in sammcj/mermaid-check#19 and picked up with the v0.4.1 bump.
+  Emitting the shorthand as a class assignment meant no change was needed
+  here.
+- The reverse direction still drops inline `style.*`; a D2 node styled
+  directly comes back as a plain Mermaid node.
+
 ## v0.4.0
 
 - classDiagram static (`$`) and abstract (`*`) member classifiers survive both
