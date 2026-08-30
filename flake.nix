@@ -30,7 +30,7 @@
       }: {
         packages.default = pkgs.buildGoModule {
           pname = "m2d2";
-          version = "0.2.0";
+          version = "0.3.0";
           src = ./.;
           vendorHash = "sha256-WxNa6K3HQRRgRqIyF6s99zVnP6ambwTJxeVdnF5Pw1s=";
           subPackages = ["cmd/m2d2"];
