@@ -3,10 +3,8 @@
 ## v0.2.0
 
 Bidirectional conversion between D2 and Mermaid as a Go library and the `m2d2`
-CLI. Pre-1.0: the parser dependency is a fork of `sammcj/mermaid-check`
-(see [#46](https://github.com/noamsto/mermaid2d2/issues/46)) and the output
-format is still settling, so 1.0.0 is deferred until that fork is dropped for a
-tagged upstream release and the feature surface stabilizes.
+CLI. Pre-1.0: the output format is still settling, so 1.0.0 is deferred until
+the feature surface stabilizes.
 
 ### D2 → Mermaid
 - Graph/flowchart diagrams: nodes, containers → `subgraph`s, connections, board
@@ -33,8 +31,8 @@ tagged upstream release and the feature surface stabilizes.
 - **classDiagram** — classes → `sql_table`-style `class` shapes with typed
   members and visibility; relationships → connections with UML arrowheads;
   notes → `tooltip` on their target class, or a floating node when standalone
-  (via the `mermaid-check` v0.1.4 parser, which added support for notes with
-  no target class).
+  (via the `mermaid-check` parser, which added support for notes with no
+  target class).
 - **erDiagram** — entities → `sql_table` shapes (typed columns, PK/FK/UK
   constraints), relationships → connections with crow's-foot cardinality labels.
 - **mindmap** — tree of nodes connected to their parents, with mapped shapes.

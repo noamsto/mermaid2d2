@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	mermaid "github.com/noamsto/mermaid-check"
+	mermaid "github.com/sammcj/mermaid-check"
 	"oss.terrastruct.com/d2/d2compiler"
 	"oss.terrastruct.com/d2/d2graph"
 )

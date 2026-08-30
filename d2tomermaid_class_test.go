@@ -3,7 +3,7 @@ package mermaid2d2
 import (
 	"testing"
 
-	mermaid "github.com/noamsto/mermaid-check"
+	mermaid "github.com/sammcj/mermaid-check"
 )
 
 func TestClassDiagramFromD2Classes(t *testing.T) {
