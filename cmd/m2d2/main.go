@@ -7,10 +7,15 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 
 	"github.com/noamsto/mermaid2d2"
 )
+
+// version is stamped in by the release build; go install leaves it empty and
+// the module version from the build info stands in.
+var version = ""
 
 func main() {
 	if err := run(); err != nil {
@@ -22,8 +27,14 @@ func main() {
 func run() error {
 	out := flag.String("o", "", "output file (default stdout)")
 	to := flag.String("to", "", "target format: d2 or mermaid (default: inferred from input extension)")
+	showVersion := flag.Bool("version", false, "print version and exit")
 	flag.Usage = usage
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println("m2d2", buildVersion())
+		return nil
+	}
 
 	if flag.NArg() > 1 {
 		return fmt.Errorf("expected at most one input file, got %d", flag.NArg())
@@ -52,6 +63,16 @@ func run() error {
 	}
 
 	return writeOutput(*out, result)
+}
+
+func buildVersion() string {
+	if version != "" {
+		return version
+	}
+	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" {
+		return info.Main.Version
+	}
+	return "dev"
 }
 
 func readInput(path string) ([]byte, error) {
