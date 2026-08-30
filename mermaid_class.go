@@ -2,6 +2,7 @@ package mermaid2d2
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/sammcj/mermaid-check/ast"
@@ -12,7 +13,8 @@ import (
 // the UML relation type. Notes targeting a class render as a tooltip attribute on
 // that class; standalone notes (no target class) render as their own floating
 // node; comments are dropped.
-func classDiagramToD2(d *ast.ClassDiagram) string {
+func classDiagramToD2(d *ast.ClassDiagram, src string) string {
+	srcLines := strings.Split(src, "\n")
 	classNames := make(map[string]bool)
 	for _, s := range d.Statements {
 		if c, ok := s.(*ast.Class); ok {
@@ -27,7 +29,7 @@ func classDiagramToD2(d *ast.ClassDiagram) string {
 		case *ast.Class:
 			classNode(&b, v)
 		case *ast.Relationship:
-			classRelationship(&b, v)
+			classRelationship(&b, v, markerSide(srcLines, v.Pos))
 		case *ast.ClassNote:
 			classNote(&b, v, &noteCount, classNames)
 		}
@@ -114,9 +116,36 @@ func classVisibility(v string) string {
 	return v
 }
 
-func classRelationship(b *strings.Builder, r *ast.Relationship) {
-	fmt.Fprintf(b, "%s -> %s", r.From, r.To)
-	attrs := classRelAttrs(r)
+// classRelOp matches the UML relation operators, longest first so "<|--" wins
+// over "<--".
+var classRelOp = regexp.MustCompile(`<\|--|<\|\.\.|--\|>|\.\.\|>|\*--|--\*|o--|--o|<--|-->|<\.\.|\.\.>`)
+
+// markerSide reports which end of a relationship carries the UML marker.
+//
+// The AST records the two classes in written order plus a relation type, but not
+// which side the marker glyph was on — and "Entity <|-- Order" and
+// "Order --|> Entity" are the same relation drawn with the triangle at opposite
+// ends. The operator is therefore recovered from the source line. Relations the
+// operator cannot be read from keep the common right-pointing reading.
+func markerSide(srcLines []string, pos ast.Position) string {
+	if pos.Line < 1 || pos.Line > len(srcLines) {
+		return "target"
+	}
+	switch op := classRelOp.FindString(srcLines[pos.Line-1]); {
+	case strings.HasPrefix(op, "<"), strings.HasPrefix(op, "*"), strings.HasPrefix(op, "o"):
+		return "source"
+	default:
+		return "target"
+	}
+}
+
+func classRelationship(b *strings.Builder, r *ast.Relationship, side string) {
+	arrow := "->"
+	if side == "source" {
+		arrow = "<-"
+	}
+	fmt.Fprintf(b, "%s %s %s", r.From, arrow, r.To)
+	attrs := classRelAttrs(r, side)
 	switch {
 	case r.Label != "" && attrs != "":
 		fmt.Fprintf(b, ": %s {%s}", d2Label(r.Label), attrs)
@@ -129,28 +158,40 @@ func classRelationship(b *strings.Builder, r *ast.Relationship) {
 }
 
 // classRelAttrs builds the connection attribute block mapping the UML relation type
-// to D2 arrowhead shapes, plus any end cardinalities as arrowhead labels.
-func classRelAttrs(r *ast.Relationship) string {
-	var srcShape, tgtShape string
-	var srcHollow, tgtHollow, dashed bool
+// to D2 arrowhead shapes, plus any end cardinalities as arrowhead labels. side is
+// the connection end carrying the UML marker; D2 only draws an arrowhead on the
+// end the arrow points at, which is why classRelationship flips the arrow rather
+// than always writing "->".
+//
+// Fill is always explicit: D2 defaults a triangle arrowhead to filled and a
+// diamond to hollow, so composition and aggregation would otherwise render
+// identically.
+func classRelAttrs(r *ast.Relationship, side string) string {
+	var shape string
+	var filled, dashed bool
 	switch r.Type {
 	case "inheritance":
-		tgtShape, tgtHollow = "triangle", true
+		shape = "triangle"
 	case "realization":
-		tgtShape, tgtHollow, dashed = "triangle", true, true
+		shape, dashed = "triangle", true
 	case "composition":
-		srcShape = "diamond"
+		shape, filled = "diamond", true
 	case "aggregation":
-		srcShape, srcHollow = "diamond", true
+		shape = "diamond"
 	case "dependency":
 		dashed = true
 	}
 
+	srcShape, tgtShape := "", shape
+	if side == "source" {
+		srcShape, tgtShape = shape, ""
+	}
+
 	var attrs []string
-	if a := arrowheadAttr("source", srcShape, srcHollow, endLabel(r.FromCardinality, r.FromMultiplicity)); a != "" {
+	if a := arrowheadAttr("source", srcShape, filled, endLabel(r.FromCardinality, r.FromMultiplicity)); a != "" {
 		attrs = append(attrs, a)
 	}
-	if a := arrowheadAttr("target", tgtShape, tgtHollow, endLabel(r.ToCardinality, r.ToMultiplicity)); a != "" {
+	if a := arrowheadAttr("target", tgtShape, filled, endLabel(r.ToCardinality, r.ToMultiplicity)); a != "" {
 		attrs = append(attrs, a)
 	}
 	if dashed {
@@ -159,13 +200,10 @@ func classRelAttrs(r *ast.Relationship) string {
 	return strings.Join(attrs, "; ")
 }
 
-func arrowheadAttr(end, shape string, hollow bool, label string) string {
+func arrowheadAttr(end, shape string, filled bool, label string) string {
 	var parts []string
 	if shape != "" {
-		parts = append(parts, "shape: "+shape)
-	}
-	if hollow {
-		parts = append(parts, "style.filled: false")
+		parts = append(parts, "shape: "+shape, fmt.Sprintf("style.filled: %t", filled))
 	}
 	if label != "" {
 		parts = append(parts, "label: "+label)

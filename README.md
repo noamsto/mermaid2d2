@@ -200,8 +200,8 @@ Order: {
   +id: String
   +submit(String coupon): bool
 }
-Entity -> Order: {target-arrowhead: {shape: triangle; style.filled: false}}
-Order -> LineItem: {source-arrowhead: {shape: diamond}}
+Entity <- Order: {source-arrowhead: {shape: triangle; style.filled: false}}
+Order <- LineItem: {source-arrowhead: {shape: diamond; style.filled: true}}
 Order -> Customer: placed by
 ```
 
