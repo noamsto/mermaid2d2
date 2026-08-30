@@ -3,7 +3,7 @@
 Pre-1.0: the output format is still settling, so 1.0.0 is deferred until the
 feature surface stabilizes.
 
-## Unreleased
+## v0.4.0
 
 - classDiagram static (`$`) and abstract (`*`) member classifiers survive both
   directions. D2 has no notion of either, so they ride along in the member
