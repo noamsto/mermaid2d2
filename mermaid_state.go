@@ -13,7 +13,10 @@ import (
 // their nested statements) and transitions become connections. D2 has no native
 // start/end markers, so Mermaid's [*] is rendered with sentinel circle nodes:
 // per scope, a single `start` node fans out to every start target and a single
-// `end` node collects every end source. Choice nodes become diamonds; fork and
+// `end` node collects every end source. Both are drawn UML-style — a small
+// unlabelled dot, and a ring for the terminal state — instead of ordinary
+// states with "start"/"end" written inside them. Neither carries an explicit
+// colour, so d2 --dark-theme still recolours them. Choice nodes become diamonds; fork and
 // join nodes become plain nodes (D2 has no bar shape). Notes render as a
 // tooltip attribute on their target state; comments are dropped, matching how
 // the other converters treat features with no D2 analog.
@@ -55,13 +58,13 @@ func emitStateStmts(b *strings.Builder, stmts []ast.StateStmt, depth int) {
 			fmt.Fprintln(b, line)
 		case *ast.StartState:
 			if !startDone {
-				fmt.Fprintf(b, "%sstart: {shape: circle}\n", indent)
+				fmt.Fprintf(b, "%sstart: \"\" {shape: circle; width: 20; height: 20}\n", indent)
 				startDone = true
 			}
 			fmt.Fprintf(b, "%sstart -> %s\n", indent, v.To)
 		case *ast.EndState:
 			if !endDone {
-				fmt.Fprintf(b, "%send: {shape: circle}\n", indent)
+				fmt.Fprintf(b, "%send: \"\" {shape: circle; style.double-border: true; width: 24; height: 24}\n", indent)
 				endDone = true
 			}
 			fmt.Fprintf(b, "%s%s -> end\n", indent, v.From)
