@@ -46,8 +46,7 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 
 Each pair below is a Mermaid source (left) and the D2 that `m2d2` produces from
 it (right), both rendered to SVG. Click any diagram to open it full size.
-Regenerate with
-[`docs/examples/generate.sh`](docs/examples/generate.sh).
+Regenerate with [`docs/examples/generate.sh`](docs/examples/generate.sh).
 
 ### Flowchart
 
