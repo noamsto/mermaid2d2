@@ -12,19 +12,19 @@ import (
 func TestClassDiagramToD2(t *testing.T) {
 	tests := []struct {
 		name string
-		cd   *ast.ClassDiagram
+		src  string
 		want string
 	}{
 		{
 			name: "fields and methods with mixed visibility",
-			cd: parseClassDiagram(t, "classDiagram\n"+
-				"    class Animal {\n"+
-				"        +String name\n"+
-				"        -int age\n"+
-				"        #bool alive\n"+
-				"        ~int region\n"+
-				"        +makeSound(String kind) int\n"+
-				"    }\n"),
+			src: "classDiagram\n" +
+				"    class Animal {\n" +
+				"        +String name\n" +
+				"        -int age\n" +
+				"        #bool alive\n" +
+				"        ~int region\n" +
+				"        +makeSound(String kind) int\n" +
+				"    }\n",
 			want: "Animal: {\n" +
 				"  shape: class\n" +
 				"  +name: String\n" +
@@ -36,13 +36,13 @@ func TestClassDiagramToD2(t *testing.T) {
 		},
 		{
 			name: "static and abstract member classifiers",
-			cd: parseClassDiagram(t, "classDiagram\n"+
-				"    class Widget {\n"+
-				"        +String colour$\n"+
-				"        +draw()*\n"+
-				"        +make() Widget$\n"+
-				"        #int count$\n"+
-				"    }\n"),
+			src: "classDiagram\n" +
+				"    class Widget {\n" +
+				"        +String colour$\n" +
+				"        +draw()*\n" +
+				"        +make() Widget$\n" +
+				"        #int count$\n" +
+				"    }\n",
 			want: "Widget: {\n" +
 				"  shape: class\n" +
 				"  \"+colour$\": String\n" +
@@ -53,64 +53,80 @@ func TestClassDiagramToD2(t *testing.T) {
 		},
 		{
 			name: "class with no members",
-			cd:   parseClassDiagram(t, "classDiagram\n    class Dog"),
+			src:  "classDiagram\n    class Dog",
 			want: "Dog: {shape: class}\n",
 		},
 		{
 			name: "inheritance relationship",
-			cd:   parseClassDiagram(t, "classDiagram\n    Dog --|> Animal"),
+			src:  "classDiagram\n    Dog --|> Animal",
 			want: "Dog -> Animal: {target-arrowhead: {shape: triangle; style.filled: false}}\n",
 		},
 		{
+			name: "left-pointing inheritance marks the class it points at",
+			src:  "classDiagram\n    Animal <|-- Dog",
+			want: "Animal <- Dog: {source-arrowhead: {shape: triangle; style.filled: false}}\n",
+		},
+		{
+			name: "aggregation diamond is hollow, composition filled",
+			src:  "classDiagram\n    Team o-- Player\n    House *-- Room",
+			want: "Team <- Player: {source-arrowhead: {shape: diamond; style.filled: false}}\n" +
+				"House <- Room: {source-arrowhead: {shape: diamond; style.filled: true}}\n",
+		},
+		{
+			name: "left-pointing association reverses the arrow",
+			src:  "classDiagram\n    A <-- B",
+			want: "A <- B\n",
+		},
+		{
 			name: "association with label",
-			cd:   parseClassDiagram(t, "classDiagram\n    A --> B : uses"),
+			src:  "classDiagram\n    A --> B : uses",
 			want: "A -> B: uses\n",
 		},
 		{
 			name: "composition with cardinalities",
-			cd:   parseClassDiagram(t, "classDiagram\n    Car \"1\" *-- \"4\" Wheel"),
-			want: "Car -> Wheel: {source-arrowhead: {shape: diamond; label: 1}; target-arrowhead: {label: 4}}\n",
+			src:  "classDiagram\n    Car \"1\" *-- \"4\" Wheel",
+			want: "Car <- Wheel: {source-arrowhead: {shape: diamond; style.filled: true; label: 1}; target-arrowhead: {label: 4}}\n",
 		},
 		{
 			name: "note becomes a tooltip on its target class",
-			cd:   parseClassDiagram(t, "classDiagram\n    class Dog\n    note for Dog \"some note\""),
+			src:  "classDiagram\n    class Dog\n    note for Dog \"some note\"",
 			want: "Dog: {shape: class}\n" +
 				"Dog.tooltip: some note\n",
 		},
 		{
 			name: "note text needing d2 quoting",
-			cd:   parseClassDiagram(t, "classDiagram\n    class Dog\n    note for Dog \"50% done #tag\""),
+			src:  "classDiagram\n    class Dog\n    note for Dog \"50% done #tag\"",
 			want: "Dog: {shape: class}\n" +
 				"Dog.tooltip: \"50% done #tag\"\n",
 		},
 		{
 			name: "standalone note becomes a floating node",
-			cd:   parseClassDiagram(t, "classDiagram\n    note \"a floating note\""),
+			src:  "classDiagram\n    note \"a floating note\"",
 			want: "note_1: a floating note\n",
 		},
 		{
 			name: "multiple standalone notes get unique ids",
-			cd: parseClassDiagram(t, "classDiagram\n"+
-				"    note \"first\"\n"+
-				"    note \"second\"\n"),
+			src: "classDiagram\n" +
+				"    note \"first\"\n" +
+				"    note \"second\"\n",
 			want: "note_1: first\n" +
 				"note_2: second\n",
 		},
 		{
 			name: "targeted note still renders as a tooltip alongside a standalone note",
-			cd: parseClassDiagram(t, "classDiagram\n"+
-				"    class Dog\n"+
-				"    note for Dog \"dog note\"\n"+
-				"    note \"floating note\"\n"),
+			src: "classDiagram\n" +
+				"    class Dog\n" +
+				"    note for Dog \"dog note\"\n" +
+				"    note \"floating note\"\n",
 			want: "Dog: {shape: class}\n" +
 				"Dog.tooltip: dog note\n" +
 				"note_1: floating note\n",
 		},
 		{
 			name: "standalone note skips an id already taken by a class name",
-			cd: parseClassDiagram(t, "classDiagram\n"+
-				"    class note_1\n"+
-				"    note \"floating note\"\n"),
+			src: "classDiagram\n" +
+				"    class note_1\n" +
+				"    note \"floating note\"\n",
 			want: "note_1: {shape: class}\n" +
 				"note_2: floating note\n",
 		},
@@ -118,16 +134,16 @@ func TestClassDiagramToD2(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assertClassConvertsTo(t, tt.cd, tt.want)
+			assertClassConvertsTo(t, tt.src, tt.want)
 		})
 	}
 }
 
-// assertClassConvertsTo checks that classDiagramToD2(cd) equals want and that the
+// assertClassConvertsTo checks that converting src equals want and that the
 // output is valid D2 (it compiles).
-func assertClassConvertsTo(t *testing.T, cd *ast.ClassDiagram, want string) {
+func assertClassConvertsTo(t *testing.T, src, want string) {
 	t.Helper()
-	got := classDiagramToD2(cd)
+	got := classDiagramToD2(parseClassDiagram(t, src), src)
 	if got != want {
 		t.Errorf("classDiagramToD2\n got:\n%s\nwant:\n%s", got, want)
 	}
