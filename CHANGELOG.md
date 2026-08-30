@@ -3,7 +3,43 @@
 Pre-1.0: the output format is still settling, so 1.0.0 is deferred until the
 feature surface stabilizes.
 
-## Unreleased
+## v0.5.0
+
+Rendering fixes across four diagram types. Each was found by putting the
+examples side by side in the README, and each changes what `m2d2` emits for
+input it already accepted.
+
+### Fixed
+- **flowchart** — a node first mentioned outside a subgraph and then used
+  inside its body stayed outside the D2 container, so the group box wrapped
+  only part of the graph. Membership now follows the subgraph whose body
+  mentions the node; between two subgraphs the first still wins.
+- **sequenceDiagram** — each `alt`/`else`, `par`/`and` and `critical`/`option`
+  branch became its own top-level group, losing the frame that ties them
+  together. Branches now nest inside one outer group per block.
+- **classDiagram** — UML markers landed on the wrong end, and for composition
+  and aggregation did not render at all:
+  - `Entity <|-- Order` drew its triangle at `Order`. The parser records the
+    classes in written order and the relation type but not which side the
+    glyph was on, so the operator is now recovered from the source line.
+  - D2 draws an arrowhead only on the end its arrow points at, so a
+    `source-arrowhead` on a `->` connection was silently ignored — every
+    `*--` and `o--` lost its diamond. The arrow is flipped to `<-` when the
+    marker belongs at the source.
+  - D2 defaults a triangle arrowhead to filled and a diamond to hollow, so
+    composition carried aggregation's notation. Fill is now always explicit.
+  - Left-pointing associations (`A <-- B`) pointed the wrong way; the same
+    change reverses them.
+
+  Because D2 lays out along arrow direction, a superclass now sits below its
+  subclass where Mermaid draws it above. Correct arrowheads cost the vertical
+  order.
+- **stateDiagram-v2** — `[*]` was a full-size circle with `start` or `end`
+  written inside it. It is now a small unlabelled dot, and the terminal state a
+  ring, as UML draws them. Neither carries an explicit colour, so
+  `d2 --dark-theme` still recolours them.
+
+### Added
 
 - Mermaid `style A fill:#f9f` becomes `style.*` attributes on the D2 node. A
   `style` naming something that is not a drawn node is dropped rather than
@@ -15,6 +51,13 @@ feature surface stabilizes.
   here.
 - The reverse direction still drops inline `style.*`; a D2 node styled
   directly comes back as a plain Mermaid node.
+
+### Docs
+- The README examples are Mermaid fences GitHub renders itself, paired with the
+  D2 `m2d2` produces and its render. `generate.sh` no longer needs mermaid-cli,
+  and renders with `d2 --dark-theme` so the SVGs follow the reader's theme.
+- `TestREADMEExamplesInSync` fails when a conversion change lands without a
+  `generate.sh` run, since the README quotes generated D2 verbatim.
 
 ## v0.4.0
 
