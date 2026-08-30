@@ -29,7 +29,7 @@
         ...
       }: {
         packages.default = let
-          version = "0.3.0";
+          version = "0.3.1";
         in
           pkgs.buildGoModule {
             pname = "m2d2";
