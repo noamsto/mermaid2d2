@@ -62,20 +62,30 @@ func TestClassDiagramToD2(t *testing.T) {
 			want: "Dog -> Animal: {target-arrowhead: {shape: triangle; style.filled: false}}\n",
 		},
 		{
-			name: "left-pointing inheritance marks the class it points at",
+			name: "left-pointing inheritance keeps the superclass first",
 			src:  "classDiagram\n    Animal <|-- Dog",
-			want: "Animal <- Dog: {source-arrowhead: {shape: triangle; style.filled: false}}\n",
+			want: "Animal <-> Dog: {source-arrowhead: {shape: triangle; style.filled: false}; target-arrowhead: {shape: none}}\n",
 		},
 		{
 			name: "aggregation diamond is hollow, composition filled",
 			src:  "classDiagram\n    Team o-- Player\n    House *-- Room",
-			want: "Team <- Player: {source-arrowhead: {shape: diamond; style.filled: false}}\n" +
-				"House <- Room: {source-arrowhead: {shape: diamond; style.filled: true}}\n",
+			want: "Team <-> Player: {source-arrowhead: {shape: diamond; style.filled: false}; target-arrowhead: {shape: none}}\n" +
+				"House <-> Room: {source-arrowhead: {shape: diamond; style.filled: true}; target-arrowhead: {shape: none}}\n",
 		},
 		{
-			name: "left-pointing association reverses the arrow",
+			name: "left-pointing association keeps written order",
 			src:  "classDiagram\n    A <-- B",
-			want: "A <- B\n",
+			want: "A <-> B: {source-arrowhead: {shape: arrow}; target-arrowhead: {shape: none}}\n",
+		},
+		{
+			name: "undirected association has no arrowheads",
+			src:  "classDiagram\n    A -- B",
+			want: "A -- B\n",
+		},
+		{
+			name: "two-way association keeps both arrowheads",
+			src:  "classDiagram\n    A <--> B",
+			want: "A <-> B\n",
 		},
 		{
 			name: "association with label",
@@ -85,7 +95,7 @@ func TestClassDiagramToD2(t *testing.T) {
 		{
 			name: "composition with cardinalities",
 			src:  "classDiagram\n    Car \"1\" *-- \"4\" Wheel",
-			want: "Car <- Wheel: {source-arrowhead: {shape: diamond; style.filled: true; label: 1}; target-arrowhead: {label: 4}}\n",
+			want: "Car <-> Wheel: {source-arrowhead: {shape: diamond; style.filled: true; label: 1}; target-arrowhead: {shape: none; label: 4}}\n",
 		},
 		{
 			name: "note becomes a tooltip on its target class",

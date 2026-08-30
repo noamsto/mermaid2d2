@@ -49,6 +49,10 @@ D2 that `m2d2` produces from it, rendered to SVG. Click a diagram to open it
 full size. Regenerate the renders with
 [`docs/examples/generate.sh`](docs/examples/generate.sh).
 
+The renders use `d2 --layout=elk`. Layout is the renderer's choice rather than
+anything this tool emits, but ELK places a composite state's terminal node below
+its container, where the default dagre layout puts it off to one side.
+
 ### Flowchart
 
 ```mermaid
@@ -203,8 +207,8 @@ Order: {
   +id: String
   +submit(String coupon): bool
 }
-Entity <- Order: {source-arrowhead: {shape: triangle; style.filled: false}}
-Order <- LineItem: {source-arrowhead: {shape: diamond; style.filled: true}}
+Entity <-> Order: {source-arrowhead: {shape: triangle; style.filled: false}; target-arrowhead: {shape: none}}
+Order <-> LineItem: {source-arrowhead: {shape: diamond; style.filled: true}; target-arrowhead: {shape: none}}
 Order -> Customer: placed by
 ```
 
