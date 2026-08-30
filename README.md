@@ -45,16 +45,16 @@ diagram syntax, as a Go library and a CLI (`m2d2`).
 ## Examples
 
 Each pair below is a Mermaid source (left) and the D2 that `m2d2` produces from
-it (right), both rendered to SVG. Regenerate with
-[`docs/examples/generate.sh`](docs/examples/generate.sh).
+it (right), both rendered to SVG. Click any diagram to open it full size.
+Regenerate with [`docs/examples/generate.sh`](docs/examples/generate.sh).
 
 ### Flowchart
 
 <table>
 <tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
 <tr>
-<td width="50%"><img src="docs/examples/flowchart.mermaid.svg" alt="Mermaid flowchart" width="100%"></td>
-<td width="50%"><img src="docs/examples/flowchart.d2.svg" alt="D2 flowchart" width="100%"></td>
+<td width="50%"><a href="docs/examples/flowchart.mermaid.svg"><img src="docs/examples/flowchart.mermaid.svg" alt="Mermaid flowchart" width="100%"></a></td>
+<td width="50%"><a href="docs/examples/flowchart.d2.svg"><img src="docs/examples/flowchart.d2.svg" alt="D2 flowchart" width="100%"></a></td>
 </tr>
 </table>
 
@@ -63,8 +63,8 @@ it (right), both rendered to SVG. Regenerate with
 <table>
 <tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
 <tr>
-<td width="50%"><img src="docs/examples/sequence.mermaid.svg" alt="Mermaid sequence diagram" width="100%"></td>
-<td width="50%"><img src="docs/examples/sequence.d2.svg" alt="D2 sequence diagram" width="100%"></td>
+<td width="50%"><a href="docs/examples/sequence.mermaid.svg"><img src="docs/examples/sequence.mermaid.svg" alt="Mermaid sequence diagram" width="100%"></a></td>
+<td width="50%"><a href="docs/examples/sequence.d2.svg"><img src="docs/examples/sequence.d2.svg" alt="D2 sequence diagram" width="100%"></a></td>
 </tr>
 </table>
 
@@ -73,8 +73,8 @@ it (right), both rendered to SVG. Regenerate with
 <table>
 <tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
 <tr>
-<td width="50%"><img src="docs/examples/er.mermaid.svg" alt="Mermaid ER diagram" width="100%"></td>
-<td width="50%"><img src="docs/examples/er.d2.svg" alt="D2 ER diagram" width="100%"></td>
+<td width="50%"><a href="docs/examples/er.mermaid.svg"><img src="docs/examples/er.mermaid.svg" alt="Mermaid ER diagram" width="100%"></a></td>
+<td width="50%"><a href="docs/examples/er.d2.svg"><img src="docs/examples/er.d2.svg" alt="D2 ER diagram" width="100%"></a></td>
 </tr>
 </table>
 
@@ -83,8 +83,8 @@ it (right), both rendered to SVG. Regenerate with
 <table>
 <tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
 <tr>
-<td width="50%"><img src="docs/examples/class.mermaid.svg" alt="Mermaid class diagram" width="100%"></td>
-<td width="50%"><img src="docs/examples/class.d2.svg" alt="D2 class diagram" width="100%"></td>
+<td width="50%"><a href="docs/examples/class.mermaid.svg"><img src="docs/examples/class.mermaid.svg" alt="Mermaid class diagram" width="100%"></a></td>
+<td width="50%"><a href="docs/examples/class.d2.svg"><img src="docs/examples/class.d2.svg" alt="D2 class diagram" width="100%"></a></td>
 </tr>
 </table>
 
@@ -93,8 +93,8 @@ it (right), both rendered to SVG. Regenerate with
 <table>
 <tr><th>Mermaid</th><th>D2 — <code>m2d2</code> output</th></tr>
 <tr>
-<td width="50%"><img src="docs/examples/state.mermaid.svg" alt="Mermaid state diagram" width="100%"></td>
-<td width="50%"><img src="docs/examples/state.d2.svg" alt="D2 state diagram" width="100%"></td>
+<td width="50%"><a href="docs/examples/state.mermaid.svg"><img src="docs/examples/state.mermaid.svg" alt="Mermaid state diagram" width="100%"></a></td>
+<td width="50%"><a href="docs/examples/state.d2.svg"><img src="docs/examples/state.d2.svg" alt="D2 state diagram" width="100%"></a></td>
 </tr>
 </table>
 
