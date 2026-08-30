@@ -3,6 +3,13 @@
 Pre-1.0: the output format is still settling, so 1.0.0 is deferred until the
 feature surface stabilizes.
 
+## v0.3.1
+
+- `m2d2 -version` prints the version. Release builds stamp it in; a
+  `go install` build reports the module version.
+- Corrected the package doc, which still described both directions as
+  flowchart-only.
+
 ## v0.3.0
 
 Completes the D2 → Mermaid direction (it emitted only flowcharts in v0.2.0),
