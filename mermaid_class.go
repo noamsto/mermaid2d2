@@ -2,7 +2,6 @@ package mermaid2d2
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/sammcj/mermaid-check/ast"
@@ -13,8 +12,7 @@ import (
 // the UML relation type. Notes targeting a class render as a tooltip attribute on
 // that class; standalone notes (no target class) render as their own floating
 // node; comments are dropped.
-func classDiagramToD2(d *ast.ClassDiagram, src string) string {
-	srcLines := strings.Split(src, "\n")
+func classDiagramToD2(d *ast.ClassDiagram) string {
 	classNames := make(map[string]bool)
 	for _, s := range d.Statements {
 		if c, ok := s.(*ast.Class); ok {
@@ -29,7 +27,7 @@ func classDiagramToD2(d *ast.ClassDiagram, src string) string {
 		case *ast.Class:
 			classNode(&b, v)
 		case *ast.Relationship:
-			classRelationship(&b, v, markerSide(srcLines, v.Pos))
+			classRelationship(&b, v, markerSide(v.Operator))
 		case *ast.ClassNote:
 			classNote(&b, v, &noteCount, classNames)
 		}
@@ -116,23 +114,13 @@ func classVisibility(v string) string {
 	return v
 }
 
-// classRelOp matches the UML relation operators, longest first so "<|--" wins
-// over "<--" and "-->" over "--".
-var classRelOp = regexp.MustCompile(`<\|--|<\|\.\.|--\|>|\.\.\|>|\*--|--\*|o--|--o|<-->|<--|-->|<\.\.|\.\.>|--|\.\.`)
-
 // markerSide reports which end of a relationship carries the UML marker:
 // "source", "target", "both", or "none" for an undirected line.
 //
-// The AST records the two classes in written order plus a relation type, but not
-// which side the marker glyph was on — and "Entity <|-- Order" and
-// "Order --|> Entity" are the same relation drawn with the triangle at opposite
-// ends. The operator is therefore recovered from the source line. Relations the
-// operator cannot be read from keep the common right-pointing reading.
-func markerSide(srcLines []string, pos ast.Position) string {
-	if pos.Line < 1 || pos.Line > len(srcLines) {
-		return "target"
-	}
-	op := classRelOp.FindString(srcLines[pos.Line-1])
+// From and To are in written order and Type is shared across spellings, so the
+// operator is what separates "Entity <|-- Order" from "Order --|> Entity" —
+// the same relation with the triangle at opposite ends.
+func markerSide(op string) string {
 	switch {
 	case op == "--" || op == "..":
 		return "none"
