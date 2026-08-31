@@ -3,6 +3,16 @@
 Pre-1.0: the output format is still settling, so 1.0.0 is deferred until the
 feature surface stabilizes.
 
+## Unreleased
+
+- D2 inline `style.*` converts back to a Mermaid `style` statement, closing the
+  last gap in that pair — the forward direction landed in v0.5.0. A classed
+  object keeps its `class` line alone unless it carries a per-object override,
+  which Mermaid resolves over `classDef`.
+- classDiagram relation markers read `ast.Relationship.Operator`, added in
+  `mermaid-check` v0.5.0, instead of re-reading the source line to recover the
+  operator. No behaviour change; the workaround and its regex are gone.
+
 ## v0.5.0
 
 Rendering fixes across four diagram types. Each was found by putting the

@@ -153,7 +153,7 @@ func TestClassDiagramToD2(t *testing.T) {
 // output is valid D2 (it compiles).
 func assertClassConvertsTo(t *testing.T, src, want string) {
 	t.Helper()
-	got := classDiagramToD2(parseClassDiagram(t, src), src)
+	got := classDiagramToD2(parseClassDiagram(t, src))
 	if got != want {
 		t.Errorf("classDiagramToD2\n got:\n%s\nwant:\n%s", got, want)
 	}

@@ -37,7 +37,7 @@ func MermaidToD2(src string) (string, error) {
 	case *ast.StateDiagram:
 		return stateDiagramToD2(d), nil
 	case *ast.ClassDiagram:
-		return classDiagramToD2(d, src), nil
+		return classDiagramToD2(d), nil
 	case *ast.ERDiagram:
 		return erDiagramToD2(d), nil
 	case *ast.MindmapDiagram:
