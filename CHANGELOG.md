@@ -9,6 +9,11 @@ feature surface stabilizes.
   last gap in that pair — the forward direction landed in v0.5.0. A classed
   object keeps its `class` line alone unless it carries a per-object override,
   which Mermaid resolves over `classDef`.
+- Quoted labels survive a round trip. `A["Start"]` parsed to the label
+  `"Start"` — quotes and all — so converting D2 to Mermaid and back added a
+  pair per pass, since our own emitter quotes labels. Fixed upstream in
+  sammcj/mermaid-check#25 and picked up with the v0.5.1 bump; node and edge
+  labels were both affected.
 - classDiagram relation markers read `ast.Relationship.Operator`, added in
   `mermaid-check` v0.5.0, instead of re-reading the source line to recover the
   operator. No behaviour change; the workaround and its regex are gone.

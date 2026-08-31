@@ -26,8 +26,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rivo/uniseg v0.4.7 h1:WUdvkW8uEhrYfLC4ZzdpI2ztxP1I582+49Oc5Mq64VQ=
 github.com/rivo/uniseg v0.4.7/go.mod h1:FN3SvrM+Zdj16jyLfmOkMNblXMcoc8DfTHruCPUcx88=
-github.com/sammcj/mermaid-check v0.5.0 h1:B6OVj3LJ/UK2A9EqdgtHtRq97tn7xshEWStUbs95Z6k=
-github.com/sammcj/mermaid-check v0.5.0/go.mod h1:zdYcoYCdyd+MTkkSOPDzEZkvhkn28OMH/KcGsFjmePQ=
+github.com/sammcj/mermaid-check v0.5.1 h1:mRavMryPdcYu2NqdE2Wi1Wo6WFBT109bG/j+Yaf8YKg=
+github.com/sammcj/mermaid-check v0.5.1/go.mod h1:zdYcoYCdyd+MTkkSOPDzEZkvhkn28OMH/KcGsFjmePQ=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/xyproto/randomstring v1.0.5 h1:YtlWPoRdgMu3NZtP45drfy1GKoojuR7hmRcnhZqKjWU=
