@@ -2,6 +2,7 @@ package mermaid2d2
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"oss.terrastruct.com/d2/d2graph"
@@ -9,8 +10,9 @@ import (
 
 // writeStyling emits classDef/class lines for every object carrying a D2
 // class: name whose resolved Style has at least one property with a Mermaid
-// equivalent. The first object to carry a given class name supplies that
-// class's style (D2 bakes each class's properties directly onto every object
+// equivalent, then a style line for any object styled beyond what its classes
+// give it. The first object to carry a given class name supplies that class's
+// style (D2 bakes each class's properties directly onto every object
 // referencing it, so — barring a per-object style override — they agree).
 func (e *mermaidEmitter) writeStyling(b *strings.Builder, graph *d2graph.Graph) {
 	classCSS := map[string][]string{}
@@ -42,6 +44,26 @@ func (e *mermaidEmitter) writeStyling(b *strings.Builder, graph *d2graph.Graph) 
 		if len(names) > 0 {
 			fmt.Fprintf(b, "    class %s %s\n", e.id(obj), strings.Join(names, ","))
 		}
+	}
+	for _, obj := range graph.Objects {
+		if obj.IsContainer() {
+			continue
+		}
+		css := d2StyleToMermaid(obj.Style)
+		if len(css) == 0 {
+			continue
+		}
+		// A classed object's Style already holds its classes' properties, so an
+		// unmodified one is fully covered by its class line. Anything else is a
+		// per-object style, which Mermaid resolves over classDef.
+		var fromClasses []string
+		for _, name := range obj.Classes {
+			fromClasses = append(fromClasses, classCSS[name]...)
+		}
+		if slices.Equal(css, fromClasses) {
+			continue
+		}
+		fmt.Fprintf(b, "    style %s %s\n", e.id(obj), strings.Join(css, ","))
 	}
 }
 
