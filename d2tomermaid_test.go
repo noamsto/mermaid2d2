@@ -129,3 +129,24 @@ func TestD2ToMermaidErAndClass(t *testing.T) {
 		})
 	}
 }
+
+// TestLabelRoundTrip pins labels against our own emitter: D2ToMermaid quotes
+// them, so anything that re-reads that output must not take the quotes for
+// label text and accumulate a pair per pass.
+func TestLabelRoundTrip(t *testing.T) {
+	in := "A: Start\n" +
+		"B: 50% done\n" +
+		"A -> B: takes a while\n"
+
+	mmd, err := D2ToMermaid(in)
+	if err != nil {
+		t.Fatalf("D2ToMermaid(%q) error: %v", in, err)
+	}
+	got, err := MermaidToD2(mmd)
+	if err != nil {
+		t.Fatalf("MermaidToD2(%q) error: %v", mmd, err)
+	}
+	if got != in {
+		t.Errorf("round trip\n got:\n%s\nwant:\n%s\nvia:\n%s", got, in, mmd)
+	}
+}

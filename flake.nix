@@ -35,7 +35,7 @@
             pname = "m2d2";
             inherit version;
             src = ./.;
-            vendorHash = "sha256-ZcDym9+iiYf7PKDKHsl5s5DXtgp+LaGmNJCs3tJg+uo=";
+            vendorHash = "sha256-5xdi1DKzb+gMgJgE2255Xpw1dcArzQEg+lPenDbyp+g=";
             subPackages = ["cmd/m2d2"];
             ldflags = ["-s" "-w" "-X main.version=${version}"];
             meta = {
