@@ -3,17 +3,25 @@
 Pre-1.0: the output format is still settling, so 1.0.0 is deferred until the
 feature surface stabilizes.
 
-## Unreleased
+## v0.6.0
 
+Closes the styling gap between the two directions, and clears both parser
+workarounds now that `mermaid-check` carries what they were reconstructing.
+
+### Added
 - D2 inline `style.*` converts back to a Mermaid `style` statement, closing the
   last gap in that pair — the forward direction landed in v0.5.0. A classed
   object keeps its `class` line alone unless it carries a per-object override,
   which Mermaid resolves over `classDef`.
+
+### Fixed
 - Quoted labels survive a round trip. `A["Start"]` parsed to the label
   `"Start"` — quotes and all — so converting D2 to Mermaid and back added a
   pair per pass, since our own emitter quotes labels. Fixed upstream in
   sammcj/mermaid-check#25 and picked up with the v0.5.1 bump; node and edge
   labels were both affected.
+
+### Internal
 - classDiagram relation markers read `ast.Relationship.Operator`, added in
   `mermaid-check` v0.5.0, instead of re-reading the source line to recover the
   operator. No behaviour change; the workaround and its regex are gone.
