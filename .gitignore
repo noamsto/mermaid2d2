@@ -4,3 +4,4 @@ result-*
 .claude/settings.local.json
 .pre-commit-config.yaml
 /m2d2
+/dist/
