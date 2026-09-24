@@ -29,7 +29,9 @@
         ...
       }: {
         packages.default = let
-          version = "0.6.0";
+          # Single source of truth for the version, bumped by release-please on
+          # each release; goreleaser stamps the same tag into the release archives.
+          version = (builtins.fromJSON (builtins.readFile ./.release-please-manifest.json)).".";
         in
           pkgs.buildGoModule {
             pname = "m2d2";
