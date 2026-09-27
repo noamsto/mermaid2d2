@@ -32,7 +32,13 @@ jobs:
       - uses: DeterminateSystems/determinate-nix-action@v3
 
       # No token exists in the job yet, so this build cannot exfiltrate one.
-      # The App token is minted afterwards, purely to push.
+      # The App token is minted afterwards, purely to push. The build must run
+      # first so the daemon actually observes the hash mismatch — fix hashes
+      # only repairs mismatches it has already seen, and Dependabot bumps
+      # otherwise fail here with nothing recorded to fix.
+      - name: Build to record hash mismatch
+        run: nix build .#default -L || true
+
       - name: Fix hashes
         run: determinate-nixd fix hashes --auto-apply
 
