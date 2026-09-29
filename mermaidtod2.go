@@ -83,10 +83,9 @@ func flowchartToD2(fc *ast.Flowchart) string {
 	// are placed into their scope now: the innermost container enclosing both.
 	for _, ed := range e.edges {
 		scope := commonContainer(e.containerOf[ed.from], e.containerOf[ed.to])
-		// scope is always a key in byPath: it is a common prefix of two container
-		// paths, and subgraph IDs cannot contain "." (sanitizeID strips it), so
-		// every prefix of a container path is itself a container. Fall back to
-		// the root board rather than dereferencing an absent map value.
+		// scope is always a key in byPath — subgraph IDs cannot contain "."
+		// (sanitizeID strips it), so a common prefix of two container paths is
+		// itself a container — but guard the lookup so a future gap cannot panic.
 		c, ok := e.byPath[scope]
 		if !ok {
 			c = root

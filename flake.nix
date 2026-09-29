@@ -32,14 +32,12 @@
         # each release; goreleaser stamps the same tag into the release archives.
         version = (builtins.fromJSON (builtins.readFile ./.release-please-manifest.json)).".";
 
-        # The same dependency pin the binary is built with. buildGoModule wires
-        # GOPATH/GOMODCACHE to a fetched, read-only module cache, which lets the
-        # static-analysis checks run in the Nix sandbox with no network.
+        # The binary's dependency pin. buildGoModule points GOPATH/GOMODCACHE at
+        # a fetched, read-only module cache, so the checks run without network.
         vendorHash = "sha256-5xdi1DKzb+gMgJgE2255Xpw1dcArzQEg+lPenDbyp+g=";
 
-        # A checks.<system>.* derivation whose whole output is the gate result:
-        # it reuses buildGoModule's offline module setup, runs one command, and
-        # installs nothing.
+        # Gate derivation: reuse buildGoModule's offline module setup, run one
+        # command, install nothing.
         mkGoGate = name: script:
           pkgs.buildGoModule {
             pname = "m2d2-${name}";
