@@ -13,6 +13,7 @@ linters:
     - nilerr
     - bodyclose
     - gosec
+    - modernize
   settings:
     exhaustive:
       default-signifies-exhaustive: true
