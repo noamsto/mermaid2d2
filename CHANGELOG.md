@@ -3,6 +3,14 @@
 Pre-1.0: the output format is still settling, so 1.0.0 is deferred until the
 feature surface stabilizes.
 
+## [0.7.0](https://github.com/noamsto/mermaid2d2/compare/v0.6.0...v0.7.0) (2026-09-29)
+
+
+### Features
+
+* enable golangci-lint modernize linter ([#91](https://github.com/noamsto/mermaid2d2/issues/91)) ([974f50a](https://github.com/noamsto/mermaid2d2/commit/974f50a133db3f30691954ddfd8f38596f785cc4))
+* exclude gosec from test files ([#95](https://github.com/noamsto/mermaid2d2/issues/95)) ([b6c7b58](https://github.com/noamsto/mermaid2d2/commit/b6c7b586a16ad2762a2dbd157d157769974e16a0))
+
 ## v0.6.0
 
 Closes the styling gap between the two directions, and clears both parser
