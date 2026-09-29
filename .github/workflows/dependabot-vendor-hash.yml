@@ -28,10 +28,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
-          # Otherwise checkout leaves GITHUB_TOKEN in git config as an http
-          # extraheader, which git sends in preference to the App token in the
-          # push URL — making the push a GITHUB_TOKEN push — and it would also
-          # expose a write token during the PR-content build.
+          # A persisted GITHUB_TOKEN extraheader would outrank the App token in
+          # the push URL, and would sit in git config during the build.
           persist-credentials: false
 
       - uses: DeterminateSystems/determinate-nix-action@v3
