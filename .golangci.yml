@@ -17,3 +17,7 @@ linters:
   settings:
     exhaustive:
       default-signifies-exhaustive: true
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters: [gosec]

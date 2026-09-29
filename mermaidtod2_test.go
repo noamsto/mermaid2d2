@@ -404,7 +404,7 @@ func TestMermaidToD2Testdata(t *testing.T) {
 	}
 	for _, f := range files {
 		t.Run(filepath.Base(f), func(t *testing.T) {
-			src, err := os.ReadFile(f) //nolint:gosec // G304: f comes from the checked-in testdata glob.
+			src, err := os.ReadFile(f)
 			if err != nil {
 				t.Fatal(err)
 			}
