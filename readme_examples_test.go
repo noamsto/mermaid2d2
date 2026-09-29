@@ -35,7 +35,7 @@ func TestREADMEExamplesInSync(t *testing.T) {
 
 func readFile(t *testing.T, path string) string {
 	t.Helper()
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(path) //nolint:gosec // G304: path is a checked-in README/example fixture.
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
 	}

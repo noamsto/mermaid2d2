@@ -21,3 +21,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: DeterminateSystems/nix-installer-action@v22
       - run: nix build .#default # catches stale vendorHash on fork bumps
+      # The gate checks live in checks.<system>.*, so `nix flake check` runs them
+      # too; CI builds them directly because the pre-existing pre-commit check
+      # needs network access the sandbox does not have.
+      - run: nix build .#checks.x86_64-linux.golangci-lint .#checks.x86_64-linux.nilaway .#checks.x86_64-linux.go-test-race
