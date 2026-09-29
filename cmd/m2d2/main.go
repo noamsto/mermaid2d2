@@ -79,7 +79,7 @@ func readInput(path string) ([]byte, error) {
 	if path == "" || path == "-" {
 		return io.ReadAll(os.Stdin)
 	}
-	return os.ReadFile(path)
+	return os.ReadFile(path) //nolint:gosec // G304: path is the user's own CLI argument; reading it is this converter's purpose.
 }
 
 // resolveTarget picks the output format from the -to flag, falling back to the
@@ -110,7 +110,7 @@ func writeOutput(path, result string) error {
 		_, err := io.WriteString(os.Stdout, result)
 		return err
 	}
-	return os.WriteFile(path, []byte(result), 0o644)
+	return os.WriteFile(path, []byte(result), 0o644) //nolint:gosec // G306: the output is a user-requested text file, readable like the input it derives from.
 }
 
 func usage() {

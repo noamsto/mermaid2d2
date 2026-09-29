@@ -27,24 +27,55 @@
         pkgs,
         config,
         ...
-      }: {
-        packages.default = let
-          # Single source of truth for the version, bumped by release-please on
-          # each release; goreleaser stamps the same tag into the release archives.
-          version = (builtins.fromJSON (builtins.readFile ./.release-please-manifest.json)).".";
-        in
+      }: let
+        # Single source of truth for the version, bumped by release-please on
+        # each release; goreleaser stamps the same tag into the release archives.
+        version = (builtins.fromJSON (builtins.readFile ./.release-please-manifest.json)).".";
+
+        # The same dependency pin the binary is built with. buildGoModule wires
+        # GOPATH/GOMODCACHE to a fetched, read-only module cache, which lets the
+        # static-analysis checks run in the Nix sandbox with no network.
+        vendorHash = "sha256-5xdi1DKzb+gMgJgE2255Xpw1dcArzQEg+lPenDbyp+g=";
+
+        # A checks.<system>.* derivation whose whole output is the gate result:
+        # it reuses buildGoModule's offline module setup, runs one command, and
+        # installs nothing.
+        mkGoGate = name: script:
           pkgs.buildGoModule {
-            pname = "m2d2";
-            inherit version;
+            pname = "m2d2-${name}";
+            version = "0.0.0";
             src = ./.;
-            vendorHash = "sha256-5xdi1DKzb+gMgJgE2255Xpw1dcArzQEg+lPenDbyp+g=";
-            subPackages = ["cmd/m2d2"];
-            ldflags = ["-s" "-w" "-X main.version=${version}"];
-            meta = {
-              description = "Bidirectional converter between Mermaid and D2 diagram syntax";
-              mainProgram = "m2d2";
-            };
+            inherit vendorHash;
+            doCheck = false;
+            nativeBuildInputs = [pkgs.golangci-lint pkgs.nilaway];
+            buildPhase = ''
+              runHook preBuild
+              export HOME=$TMPDIR
+              export GOCACHE=$TMPDIR/go-cache
+              ${script}
+              runHook postBuild
+            '';
+            installPhase = "touch $out";
+            meta.description = "m2d2 ${name} gate";
           };
+      in {
+        packages.default = pkgs.buildGoModule {
+          pname = "m2d2";
+          inherit version vendorHash;
+          src = ./.;
+          subPackages = ["cmd/m2d2"];
+          ldflags = ["-s" "-w" "-X main.version=${version}"];
+          meta = {
+            description = "Bidirectional converter between Mermaid and D2 diagram syntax";
+            mainProgram = "m2d2";
+          };
+        };
+
+        checks = {
+          golangci-lint = mkGoGate "golangci-lint" "golangci-lint run ./...";
+          nilaway = mkGoGate "nilaway" "nilaway -include-pkgs=github.com/noamsto/mermaid2d2 ./...";
+          go-test-race = mkGoGate "go-test-race" "go test -race ./...";
+        };
 
         treefmt = {
           projectRootFile = "flake.nix";
@@ -76,6 +107,7 @@
               pkgs.gopls
               pkgs.gotools
               pkgs.golangci-lint
+              pkgs.nilaway
               config.treefmt.build.wrapper
             ];
         };
