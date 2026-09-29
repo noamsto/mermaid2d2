@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	github.com/sammcj/mermaid-check v0.5.1
-	oss.terrastruct.com/d2 v0.7.1
+	oss.terrastruct.com/d2 v0.7.2
 )
 
 require (
