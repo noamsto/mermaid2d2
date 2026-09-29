@@ -34,7 +34,7 @@
 
         # The binary's dependency pin. buildGoModule points GOPATH/GOMODCACHE at
         # a fetched, read-only module cache, so the checks run without network.
-        vendorHash = "sha256-5xdi1DKzb+gMgJgE2255Xpw1dcArzQEg+lPenDbyp+g=";
+        vendorHash = "sha256-LwTiFmVEP8bdBPI09R7FE7etuqEgHS0X7rSvDjlP7y8=";
 
         # Gate derivation: reuse buildGoModule's offline module setup, run one
         # command, install nothing.
