@@ -28,6 +28,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          # A persisted GITHUB_TOKEN extraheader would outrank the App token in
+          # the push URL, and would sit in git config during the build.
+          persist-credentials: false
 
       - uses: DeterminateSystems/determinate-nix-action@v3
 
@@ -67,6 +70,7 @@ jobs:
           git commit -m "build(deps): fix Nix hashes"
           git remote set-url origin \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          # An App token push re-triggers CI, so the stale `nix` failure clears
-          # itself; a GITHUB_TOKEN push would leave the check pending forever.
+          # Pushes authenticated by GITHUB_TOKEN (github-actions[bot]) create PR
+          # runs that wait for manual approval (action_required); an App-token
+          # push runs CI normally so the stale `nix` failure clears itself.
           git push origin "HEAD:${HEAD_REF}"
