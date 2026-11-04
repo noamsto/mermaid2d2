@@ -3,14 +3,20 @@ name: release
 on:
   push:
     branches: [main]
-  # Dispatched by release-automerge.yml after it merges the release PR: a
-  # GITHUB_TOKEN push does not trigger workflows, but workflow_dispatch is the
-  # documented exception, so this is what actually cuts the release.
+  # release-automerge.yml merges the release PR with the App token, whose push
+  # triggers this workflow natively. It dispatches this only as a backstop when
+  # no release PR is pending, to recover a missed push run (release-please is
+  # idempotent).
   workflow_dispatch:
 
 permissions:
   contents: write
-  pull-requests: write
+
+# A push run and the cron's backstop dispatch can overlap; both would try to
+# cut the same release.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release-please:
@@ -19,12 +25,23 @@ jobs:
       release_created: ${{ steps.rp.outputs.release_created }}
       tag_name: ${{ steps.rp.outputs.tag_name }}
     steps:
+      # Release-PR pushes made with GITHUB_TOKEN trigger no CI, so the required
+      # checks never report and the PR can't merge.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.VENDOR_HASH_APP_CLIENT_ID }}
+          private-key: ${{ secrets.VENDOR_HASH_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
       - uses: googleapis/release-please-action@v5
         id: rp
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
-  # Gated on the same workflow run rather than the tag-push event: a tag created
-  # by GITHUB_TOKEN does not trigger downstream workflows, so chaining via job
-  # dependency is what builds the archives without needing a PAT.
+  # Chained on this run's outputs rather than a tag trigger, so the archives
+  # build as soon as release-please cuts the release.
   goreleaser:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created == 'true' }}

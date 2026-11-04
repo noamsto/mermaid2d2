@@ -3,27 +3,36 @@ name: Dependabot auto-merge
 # A dependency bump with green CI has nothing left for a human to decide.
 # Auto-merge queues the PR and GitHub merges it the moment the required checks
 # pass, so a red build simply leaves it sitting instead of needing a sweep.
+#
+# pull_request_target is what lets this read the App secrets: Dependabot-
+# triggered pull_request runs cannot. It is safe because nothing from the PR is
+# checked out or run.
 on:
-  pull_request:
-    # `closed` is not a default type; the release job below needs it.
-    types: [opened, synchronize, reopened, closed]
+  pull_request_target:
+    types: [opened, synchronize, reopened]
 
-# Dependabot-triggered runs get a read-only token unless it is raised here.
+# GITHUB_TOKEN only reads metadata. The merge is made with the App token so its
+# push triggers release.yml and CI, which a GITHUB_TOKEN merge would not.
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+  pull-requests: read
 
 jobs:
   auto-merge:
-    if: >-
-      github.event.action != 'closed'
-      && github.event.pull_request.user.login == 'dependabot[bot]'
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: dependabot/fetch-metadata@v3
         id: metadata
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        if: steps.metadata.outputs.package-ecosystem == 'nix' || steps.metadata.outputs.update-type != 'version-update:semver-major'
+        with:
+          client-id: ${{ vars.VENDOR_HASH_APP_CLIENT_ID }}
+          private-key: ${{ secrets.VENDOR_HASH_APP_PRIVATE_KEY }}
 
       - name: Enable auto-merge
         # Nix flake-input "versions" are commit pins, yet fetch-metadata still
@@ -33,20 +42,4 @@ jobs:
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # The merge lands as a GITHUB_TOKEN push, which does not trigger release.yml,
-  # so release-please would never see the bump and release-automerge.yml's cron
-  # would find no pending release PR to merge.
-  release:
-    if: >-
-      github.event.action == 'closed'
-      && github.event.pull_request.merged
-      && github.event.pull_request.user.login == 'dependabot[bot]'
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-    steps:
-      - env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run release.yml --repo "$GITHUB_REPOSITORY"
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
