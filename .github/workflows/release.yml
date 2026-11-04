@@ -12,6 +12,12 @@ on:
 permissions:
   contents: write
 
+# A push run and the cron's backstop dispatch can overlap; both would try to
+# cut the same release.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -26,6 +32,8 @@ jobs:
         with:
           client-id: ${{ vars.VENDOR_HASH_APP_CLIENT_ID }}
           private-key: ${{ secrets.VENDOR_HASH_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
 
       - uses: googleapis/release-please-action@v5
         id: rp
