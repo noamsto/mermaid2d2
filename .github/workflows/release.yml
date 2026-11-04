@@ -40,9 +40,8 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
 
-  # The App-created tag would trigger workflows, but none listens for tags
-  # (ci.yml's bare push runs tests only). Chaining on this run's outputs builds
-  # the archives right after release-please cuts the release.
+  # Chained on this run's outputs rather than a tag trigger, so the archives
+  # build as soon as release-please cuts the release.
   goreleaser:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
