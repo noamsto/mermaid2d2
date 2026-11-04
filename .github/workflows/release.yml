@@ -34,6 +34,9 @@ jobs:
           private-key: ${{ secrets.VENDOR_HASH_APP_PRIVATE_KEY }}
           permission-contents: write
           permission-pull-requests: write
+          # Tag/ref updates need workflows once the tagged tree's workflow
+          # files differ from the default branch.
+          permission-workflows: write
 
       - uses: googleapis/release-please-action@v5
         id: rp

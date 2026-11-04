@@ -24,6 +24,7 @@ jobs:
           private-key: ${{ secrets.VENDOR_HASH_APP_PRIVATE_KEY }}
           permission-contents: write
           permission-pull-requests: write
+          permission-workflows: write
 
       - name: Merge pending release PR or re-run release
         env:
