@@ -83,6 +83,8 @@
           };
         };
 
+        pre-commit.settings.package = pkgs.prek;
+
         pre-commit.settings.hooks = {
           statix.enable = true;
           deadnix.enable = true;
