@@ -36,6 +36,22 @@
         # a fetched, read-only module cache, so the checks run without network.
         vendorHash = "sha256-LwTiFmVEP8bdBPI09R7FE7etuqEgHS0X7rSvDjlP7y8=";
 
+        # nixpkgs' nilaway (2025-03-07) vendors an x/tools whose go/ssa panics
+        # under Go 1.27. Track upstream main until nixpkgs ships a Go 1.27-ready
+        # build, then drop this override. doCheck is off because upstream's own
+        # test suite is OOM-killed on 7 GB CI runners.
+        nilaway = pkgs.nilaway.overrideAttrs (_: {
+          version = "0-unstable-2026-11-22";
+          src = pkgs.fetchFromGitHub {
+            owner = "uber-go";
+            repo = "nilaway";
+            rev = "7f797c9f2b67a10d81b207ea8c29241af77f85d7";
+            hash = "sha256-H9Ex0dNdDTm5gHUeUMBVL8/02qW1IuHzTRLAgeh9/AU=";
+          };
+          doCheck = false;
+          vendorHash = "sha256-qVmvDneq6V/q5UHZ/Cjjqd5/XPPNfvVGoxwg9nz4/Ds=";
+        });
+
         # Gate derivation: reuse buildGoModule's offline module setup, run one
         # command, install nothing.
         mkGoGate = name: script:
@@ -45,7 +61,7 @@
             src = ./.;
             inherit vendorHash;
             doCheck = false;
-            nativeBuildInputs = [pkgs.golangci-lint pkgs.nilaway];
+            nativeBuildInputs = [pkgs.golangci-lint nilaway];
             buildPhase = ''
               runHook preBuild
               export HOME=$TMPDIR
@@ -107,7 +123,7 @@
               pkgs.gopls
               pkgs.gotools
               pkgs.golangci-lint
-              pkgs.nilaway
+              nilaway
               config.treefmt.build.wrapper
             ];
         };
